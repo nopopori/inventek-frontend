@@ -1,23 +1,39 @@
 import { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
+import axios from './api/axios'; // asumsi file axios.js di src/api/
 import './Register.css';
 import registerVector from './assets/register-vector.jpg';
 
 function Register() {
-  const [nama, setNama] = useState('');
+  const [name, setName] = useState('');
   const [email, setEmail] = useState('');
-  const [noHP, setNoHP] = useState('');
+  const [phone, setPhone] = useState('');
   const [password, setPassword] = useState('');
+  const [passwordConfirmation, setPasswordConfirmation] = useState('');
+  const [error, setError] = useState(null);
+  const navigate = useNavigate();
 
-  const handleSignUp = () => {
-    console.log('Sign up attempted with:', { nama, email, noHP, password });
-    // Disini nanti bisa dihubungkan dengan backend
+  const handleSignUp = async () => {
+    try {
+      const response = await axios.post('/register', {
+        name,
+        email,
+        phone,
+        password,
+        password_confirmation: passwordConfirmation,
+      });
+
+      navigate('/login?registered=success');
+    } catch (err) {
+      console.error('Registrasi gagal:', err.response?.data || err.message);
+      setError(err.response?.data?.error || 'Registrasi gagal.');
+    }
   };
 
   return (
     <div className="register-container">
       <div className="register-card">
         <div className="register-image">
-          {/* Gambar yang diimpor */}
           <div className="register-illustration">
             <img src={registerVector} alt="Register Illustration" className="register-vector" />
           </div>
@@ -27,21 +43,39 @@ function Register() {
           <p className="register-subtitle">
             Kelola inventaris Anda dengan lebih cerdas
             <br />
-            Verifikasi akun pribadi dan mulailah membangun profil kerja Anda.
+            Verifikasi akun pribadi dan mulai bangun profil kerja Anda.
           </p>
-          
+
+          {error && (
+  <div className="error-message">
+    <ul>
+      {typeof error === 'string' ? (
+        <li>{error}</li>
+      ) : (
+        Object.entries(error).map(([field, messages]) =>
+          messages.map((msg, i) => (
+            <li key={`${field}-${i}`}>
+              <strong>{field}:</strong> {msg}
+            </li>
+          ))
+        )
+      )}
+    </ul>
+  </div>
+)}
+
           <div className="form-group">
-            <label htmlFor="nama">Nama</label>
+            <label htmlFor="name">Nama</label>
             <input
               type="text"
-              id="nama"
+              id="name"
               className="input-field"
               placeholder="Masukkan Nama Anda"
-              value={nama}
-              onChange={(e) => setNama(e.target.value)}
+              value={name}
+              onChange={(e) => setName(e.target.value)}
             />
           </div>
-          
+
           <div className="form-row">
             <div className="form-group half">
               <label htmlFor="email">Email</label>
@@ -54,20 +88,20 @@ function Register() {
                 onChange={(e) => setEmail(e.target.value)}
               />
             </div>
-            
+
             <div className="form-group half">
-              <label htmlFor="noHP">No. HP</label>
+              <label htmlFor="phone">No. HP</label>
               <input
-                type="tel"
-                id="noHP"
+                type="text"
+                id="phone"
                 className="input-field"
-                placeholder="minimal 8 karakter"
-                value={noHP}
-                onChange={(e) => setNoHP(e.target.value)}
+                placeholder="Masukkan Nomor HP"
+                value={phone}
+                onChange={(e) => setPhone(e.target.value)}
               />
             </div>
           </div>
-          
+
           <div className="form-group">
             <label htmlFor="password">Password</label>
             <input
@@ -79,14 +113,23 @@ function Register() {
               onChange={(e) => setPassword(e.target.value)}
             />
           </div>
-          
-          <button 
-            className="signup-button"
-            onClick={handleSignUp}
-          >
+
+          <div className="form-group">
+            <label htmlFor="passwordConfirmation">Konfirmasi Password</label>
+            <input
+              type="password"
+              id="passwordConfirmation"
+              className="input-field"
+              placeholder="Ulangi Kata Sandi"
+              value={passwordConfirmation}
+              onChange={(e) => setPasswordConfirmation(e.target.value)}
+            />
+          </div>
+
+          <button className="signup-button" onClick={handleSignUp}>
             Sign up
           </button>
-          
+
           <div className="login-link">
             Sudah punya akun? <a href="/login">Login disini</a>
           </div>
