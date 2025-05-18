@@ -1,23 +1,67 @@
-// Import libraries dan komponen yang diperlukan
-import React from 'react';
-import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
-import Register from './components/register'; // Import komponen Register yang sudah dibuat sebelumnya
+import { useState } from 'react';
+import './App.css';
+// Import gambar (cara yang benar di Vite)
+import loginVector from './assets/login-vector.jpg';
 
-// Komponen utama aplikasi
 function App() {
-  return (
-    <Router>
-      <div>
-        <h1 className="text-red-500 font-extrabold text-2xl">
-          Welcome to My App
-        </h1>
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
 
-        {/* Routing untuk halaman-halaman */}
-        <Routes>
-          <Route path="/register" element={<Register />} />
-        </Routes>
+  const handleLogin = () => {
+    console.log('Login attempted with:', { email, password });
+    // Disini nanti bisa dihubungkan dengan backend
+  };
+
+  return (
+    <div className="login-container">
+      <div className="login-card">
+        <div className="login-image">
+          {/* Gambar yang diimpor */}
+          <div className="login-illustration">
+            <img src={loginVector} alt="Login Illustration" className="login-vector" />
+          </div>
+        </div>
+        <div className="login-form">
+          <h1 className="login-title">Login</h1>
+          <p className="login-subtitle">Tumbuh lebih baik, dapatkan dukungan!</p>
+          
+          <div className="form-group">
+            <label htmlFor="email">Email*</label>
+            <input
+              type="email"
+              id="email"
+              className="input-field"
+              placeholder="Masukkan Email Anda"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+            />
+          </div>
+          
+          <div className="form-group">
+            <label htmlFor="password">Password*</label>
+            <input
+              type="password"
+              id="password"
+              className="input-field"
+              placeholder="Masukkan Kata Sandi"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+            />
+          </div>
+          
+          <button 
+            className="login-button"
+            onClick={handleLogin}
+          >
+            Login
+          </button>
+          
+          <div className="register-link">
+            Belum buat akun? <a href="#">Buat akun disini!</a>
+          </div>
+        </div>
       </div>
-    </Router>
+    </div>
   );
 }
 
