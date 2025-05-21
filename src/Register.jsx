@@ -24,9 +24,19 @@ function Register() {
       });
 
       navigate('/login?registered=success');
-    } catch (err) {
-      console.error('Registrasi gagal:', err.response?.data || err.message);
-      setError(err.response?.data?.error || 'Registrasi gagal.');
+    }  catch (err) {
+  console.error('Registrasi gagal:', err.response?.data || err.message);
+  
+  const responseData = err.response?.data;
+
+  // Jika backend mengirimkan 'errors' sebagai objek
+  if (responseData?.errors) {
+    setError(responseData.errors);
+  } else if (responseData?.message) {
+    setError(responseData.message);
+  } else {
+    setError('Registrasi gagal.');
+  }
     }
   };
 
