@@ -9,7 +9,7 @@ import './App.css';
 
 function App() {
   return (
-    <ProfilePage />
+    <Dashboard />
     // <Router>
     //   <Routes>
     //     <Route path="/" element={<LoginPage />} />
