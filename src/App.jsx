@@ -4,12 +4,13 @@ import LoginPage from './LoginPage';
 import Register from './Register';
 import Dashboard from './components/Dashboard';
 import ProfilePage from './components/ProfilePage';
+import Gudang from './components/Gudang';
 
 import './App.css';
 
 function App() {
   return (
-    <Dashboard />
+    <Gudang />
     // <Router>
     //   <Routes>
     //     <Route path="/" element={<LoginPage />} />
