@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { ChevronRight, Package, Users, Home, Menu, X, LogOut } from 'lucide-react';
 import './Dashboard.css';
-
+import Sidebar from './sidebar';
 const Dashboard = () => {
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [currentPage, setCurrentPage] = useState(1);
@@ -117,43 +117,7 @@ const Dashboard = () => {
   return (
     <div className="dashboard-container">
       {/* Sidebar */}
-      <div className={`sidebar ${sidebarOpen ? 'open' : ''}`}>
-        <div className="sidebar-header">
-          <div className="logo">
-            <div className="logo-icon">D</div>
-            <span className="logo-text">Dashboard</span>
-          </div>
-          <button 
-            className="close-btn mobile-only"
-            onClick={() => setSidebarOpen(false)}
-          >
-            <X size={20} />
-          </button>
-        </div>
-        
-        <nav className="sidebar-nav">
-          {menuItems.map((item, index) => (
-            <a
-              key={index}
-              href="#"
-              className={`nav-item ${item.active ? 'active' : ''}`}
-            >
-              <div className="nav-content">
-                <item.icon size={20} />
-                <span>{item.label}</span>
-              </div>
-              <ChevronRight size={16} />
-            </a>
-          ))}
-        </nav>
-
-        <div className="logout-section">
-          <button onClick={handleLogout} className="logout-btn">
-            <LogOut size={20} />
-            <span>Logout</span>
-          </button>
-        </div>
-      </div>
+      <Sidebar /> 
 
       {/* Main Content */}
       <div className="main-content">
