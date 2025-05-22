@@ -1,10 +1,10 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import axios from './api/axios'; // asumsi file axios.js di src/api/
-import './Register.css';
-import registerVector from './assets/register-vector.jpg';
+import axios from '../../api/axios.js'; // asumsi file axios.js di src/api/
+import '../../Register.css';
+import registerVector from '../../assets/register-vector.jpg';
 
-function Register() {
+function RegisterForm() {
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
   const [phone, setPhone] = useState('');
@@ -45,11 +45,11 @@ function Register() {
       <div className="register-card">
         <div className="register-image">
           <div className="register-illustration">
-            <img src={registerVector} alt="Register Illustration" className="register-vector" />
+            <img src={registerVector} alt="RegisterForm Illustration" className="register-vector" />
           </div>
         </div>
         <div className="register-form">
-          <h1 className="register-title">Register</h1>
+          <h1 className="register-title">RegisterForm</h1>
           <p className="register-subtitle">
             Kelola inventaris Anda dengan lebih cerdas
             <br />
@@ -149,4 +149,4 @@ function Register() {
   );
 }
 
-export default Register;
+export default RegisterForm;
