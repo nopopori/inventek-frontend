@@ -4,6 +4,7 @@ import LoginPage from './LoginPage';
 import Register from './Register';
 import Dashboard from './components/Dashboard';
 import ProfilePage from './components/ProfilePage';
+import Gudang from './components/Gudang';
 import ProtectedRoute from './components/ProtectedRoute';
 
 function App() {
@@ -18,6 +19,14 @@ function App() {
         element={
           <ProtectedRoute>
             <Dashboard />
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/gudang"
+        element={
+          <ProtectedRoute>
+            <Gudang />
           </ProtectedRoute>
         }
       />
