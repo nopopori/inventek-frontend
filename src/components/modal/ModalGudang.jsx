@@ -1,14 +1,14 @@
 import React from 'react';
 import '../Gudang.css'; // opsional jika kamu ingin styling terpisah
 
-const ModalGudang = ({ show, onClose, formData, onChange, onFileChange, onSubmit }) => {
+const ModalGudang = ({ show, onClose, formData, onChange, onFileChange, onSubmit, isEdit }) => {
   if (!show) return null;
 
   return (
     <div className="modal-overlay" onClick={onClose}>
       <div className="modal-content" onClick={(e) => e.stopPropagation()}>
         <div className="modal-header">
-          <h2>Tambah Gudang</h2>
+          <h2>{isEdit ? 'Edit Gudang' : 'Tambah Gudang'}</h2>
           <button className="close-btn" onClick={onClose}>×</button>
         </div>
         <form onSubmit={onSubmit} className="gudang-form">
@@ -61,7 +61,7 @@ const ModalGudang = ({ show, onClose, formData, onChange, onFileChange, onSubmit
 
           <div className="form-actions">
             <button type="button" className="cancel-btn" onClick={onClose}>Buang Perubahan</button>
-            <button type="submit" className="submit-btn">Tambah Gudang</button>
+            <button type="submit">{isEdit ? 'Update' : 'Tambah'}</button>
           </div>
         </form>
       </div>
