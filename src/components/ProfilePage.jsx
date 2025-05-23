@@ -1,9 +1,16 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import './ProfilePage.css';
 import { ChevronRight, Search, Bell, ChevronDown, Mail, Plus } from 'lucide-react';
 import defaultProfileImage from '../assets/profile.jpg';
 import Sidebar from './sidebar';
+import api from '../api/axios';
 const ProfilePage = () => {
+  const [profile, setProfile] = useState({
+    name: '',
+    email: '',
+    phone: '',
+  });
+
   const currentDate = new Date();
   const formattedDate = currentDate.toLocaleDateString('id-ID', {
     weekday: 'short',
@@ -12,19 +19,26 @@ const ProfilePage = () => {
     year: 'numeric'
   });
 
+  useEffect(() => {
+    api.get('/profile')
+      .then(res => {
+        if (res.data.success) {
+          setProfile(res.data.user);
+        }
+      })
+      .catch(err => {
+        console.error('Gagal ambil data user:', err);
+      });
+  }, []);
+
   return (
     <div className="app-container">
-      {/* Sidebar */}
-      <Sidebar /> 
-        
-        
+      <Sidebar />
 
-      {/* Main Content */}
       <div className="main-content">
-        {/* Header */}
         <header className="header">
           <div className="header-title">
-            <h1>Selamat Datang, Alexa</h1>
+            <h1>Selamat Datang, {profile.name || 'User'}</h1>
             <p className="date">{formattedDate}</p>
           </div>
           <div className="header-actions">
@@ -41,15 +55,14 @@ const ProfilePage = () => {
           </div>
         </header>
 
-        {/* Profile Content */}
         <div className="profile-content">
           <div className="profile-header">
             <div className="profile-avatar-large">
-              <img src={defaultProfileImage} alt="Alexa Rawles" />
+              <img src={defaultProfileImage} alt={profile.name} />
             </div>
             <div className="profile-header-info">
-              <h2>Alexa Rawles</h2>
-              <p>alexarawles@gmail.com</p>
+              <h2>{profile.name}</h2>
+              <p>{profile.email}</p>
             </div>
             <button className="edit-button">Edit</button>
           </div>
@@ -58,63 +71,34 @@ const ProfilePage = () => {
             <div className="form-row">
               <div className="form-group">
                 <label>Full Name</label>
-                <input type="text" placeholder="Your First Name" className="form-control" />
+                <input
+                  type="text"
+                  placeholder="Your First Name"
+                  className="form-control"
+                  value={profile.name}
+                  readOnly
+                />
               </div>
               <div className="form-group">
-                <label>Nick Name</label>
-                <input type="text" placeholder="Your First Name" className="form-control" />
-              </div>
-            </div>
-
-            <div className="form-row">
-              <div className="form-group">
-                <label>Gender</label>
-                <div className="select-container">
-                  <input type="text" placeholder="Your First Name" className="form-control" readOnly />
-                  <ChevronDown size={20} className="select-icon" />
-                </div>
+                <label>Email</label>
+                <input
+                  type="text"
+                  placeholder="Your Email"
+                  className="form-control"
+                  value={profile.email}
+                  readOnly
+                />
               </div>
               <div className="form-group">
-                <label>Country</label>
-                <div className="select-container">
-                  <input type="text" placeholder="Your First Name" className="form-control" readOnly />
-                  <ChevronDown size={20} className="select-icon" />
-                </div>
+                <label>Phone</label>
+                <input
+                  type="text"
+                  placeholder="Your Phone"
+                  className="form-control"
+                  value={profile.phone}
+                  readOnly
+                />
               </div>
-            </div>
-
-            <div className="form-row">
-              <div className="form-group">
-                <label>Language</label>
-                <div className="select-container">
-                  <input type="text" placeholder="Your First Name" className="form-control" readOnly />
-                  <ChevronDown size={20} className="select-icon" />
-                </div>
-              </div>
-              <div className="form-group">
-                <label>Time Zone</label>
-                <div className="select-container">
-                  <input type="text" placeholder="Your First Name" className="form-control" readOnly />
-                  <ChevronDown size={20} className="select-icon" />
-                </div>
-              </div>
-            </div>
-
-            <div className="email-section">
-              <h3>My email Address</h3>
-              <div className="email-item">
-                <div className="email-icon">
-                  <Mail size={20} />
-                </div>
-                <div className="email-details">
-                  <p className="email">alexarawles@gmail.com</p>
-                  <p className="email-time">1 month ago</p>
-                </div>
-              </div>
-              <button className="add-email-btn">
-                <Plus size={16} />
-                Add Email Address
-              </button>
             </div>
           </div>
         </div>
@@ -122,5 +106,4 @@ const ProfilePage = () => {
     </div>
   );
 };
-
 export default ProfilePage;
