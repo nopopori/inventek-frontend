@@ -343,3 +343,17 @@
 .add-email-btn svg {
   margin-right: 8px;
 }
+.profile-info .info-item {
+  margin-bottom: 16px;
+}
+.profile-info label {
+  font-weight: bold;
+  display: block;
+  margin-bottom: 4px;
+}
+.profile-info p {
+  padding: 10px;
+  background-color: #f4f4f4;
+  border-radius: 6px;
+  margin: 0;
+}
