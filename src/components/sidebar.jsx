@@ -1,17 +1,17 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import axios from '../api/axios';
-import { ChevronRight, LogOut, X, Box, Archive, Layers, FileText, User } from 'lucide-react';
+import { ChevronRight, LogOut, X, Box, Archive, Layers, FileText, User, Home } from 'lucide-react';
 
 const Sidebar = () => {
   const [sidebarOpen, setSidebarOpen] = useState(true);
   const navigate = useNavigate();
 
   const menuItems = [
-    { label: 'Dashboard', icon: Box, path: '/dashboard', active: window.location.pathname === '/dashboard' },
+    { label: 'Dashboard', icon: Home, path: '/dashboard', active: window.location.pathname === '/dashboard' },
     { label: 'Gudang', icon: Archive, path: '/gudang', active: window.location.pathname === '/gudang' },
     { label: 'Kategori', icon: Layers, path: '/kategori', active: window.location.pathname === '/kategori' },
-    { label: 'Produk', icon: Layers, path: '/produk', active: window.location.pathname === '/produk' },
+    { label: 'Produk', icon: Box, path: '/product', active: window.location.pathname === '/produk' },
     { label: 'Laporan', icon: FileText, path: '/laporan', active: window.location.pathname === '/laporan' },
     { label: 'Profile', icon: User, path: '/profile', active: window.location.pathname === '/profile' },
   ];
