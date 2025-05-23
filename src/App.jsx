@@ -5,6 +5,7 @@ import Register from './Register';
 import Dashboard from './components/Dashboard';
 import ProfilePage from './components/ProfilePage';
 import Gudang from './components/Gudang';
+import Product from './components/Product';
 import ProtectedRoute from './components/ProtectedRoute';
 
 function App() {
@@ -27,6 +28,14 @@ function App() {
         element={
           <ProtectedRoute>
             <Gudang />
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/produk"
+        element={
+          <ProtectedRoute>
+            <Product />
           </ProtectedRoute>
         }
       />
