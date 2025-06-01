@@ -26,24 +26,24 @@ const ProductDetail = ({ product, onBack, onEdit }) => {
               <h3>Detail Produk</h3>
               <div className="detail-grid">
                 <div className="detail-item">
-                  <div className="detail-label">Product name</div>
+                  <div className="detail-label">Nama Produk</div>
                   <div className="detail-value">{product.nama_produk}</div>
                 </div>
                 <div className="detail-item">
-                  <div className="detail-label">Product ID</div>
-                  <div className="detail-value">{product.productId || '456567'}</div>
+                  <div className="detail-label">ID Produk</div>
+                  <div className="detail-value">{product.id}</div>
                 </div>
                 <div className="detail-item">
-                  <div className="detail-label">Product category</div>
-                  <div className="detail-value">{product.kategoriProduk || 'Makanan'}</div>
+                  <div className="detail-label">Kategori</div>
+                  <div className="detail-value">{product.kategori || 'Tidak tersedia'}</div>
                 </div>
                 <div className="detail-item">
-                  <div className="detail-label">tanggal masuk</div>
-                  <div className="detail-value">{product.tanggalMasuk || '13/4/23'}</div>
+                  <div className="detail-label">Tanggal Masuk</div>
+                  <div className="detail-value">{product.tanggal_masuk}</div>
                 </div>
                 <div className="detail-item">
-                  <div className="detail-label">stok produk</div>
-                  <div className="detail-value">{product.stokProduk || '12'}</div>
+                  <div className="detail-label">Stok Produk</div>
+                  <div className="detail-value">{product.stock}</div>
                 </div>
               </div>
             </div>
@@ -53,11 +53,11 @@ const ProductDetail = ({ product, onBack, onEdit }) => {
               <div className="detail-grid">
                 <div className="detail-item">
                   <div className="detail-label">Nama Gudang</div>
-                  <div className="detail-value">{product.namaGudang || 'Ronald Martin'}</div>
+                  <div className="detail-value">{product.gudang?.nama || 'Tidak tersedia'}</div>
                 </div>
                 <div className="detail-item">
-                  <div className="detail-label">Lokasi</div>
-                  <div className="detail-value">{product.lokasiGudang || '98789 86757'}</div>
+                  <div className="detail-label">Lokasi Gudang</div>
+                  <div className="detail-value">{product.gudang?.lokasi || 'Tidak tersedia'}</div>
                 </div>
               </div>
             </div>
@@ -66,7 +66,7 @@ const ProductDetail = ({ product, onBack, onEdit }) => {
               <h3>Deskripsi</h3>
               <div className="detail-item">
                 <div className="detail-label">Deskripsi Produk</div>
-                <div className="detail-value">{product.deskripsiProduk || 'Penyedap makanan'}</div>
+                <div className="detail-value">{product.keterangan || '-'}</div>
               </div>
             </div>
           </div>
@@ -78,27 +78,11 @@ const ProductDetail = ({ product, onBack, onEdit }) => {
                   <img 
                     src={product.foto_produk} 
                     alt={product.nama_produk}
-                    style={{ width: '100%', height: '100%', objectFit: 'cover', borderRadius: '8px' }}
+                    style={{ width: '100%', borderRadius: '10px' }}
                   />
                 ) : (
-                  'No Image Available'
+                  <p>Foto tidak tersedia</p>
                 )}
-              </div>
-            </div>
-
-            <div className="stock-info-card">
-              <h3>Stock Info</h3>
-              <div className="stock-item">
-                <span className="stock-label">Jumlah Awal</span>
-                <span className="stock-value">{product.jumlahAwal || '40'}</span>
-              </div>
-              <div className="stock-item">
-                <span className="stock-label">Sisa Produk</span>
-                <span className="stock-value">{product.sisaProduk || '34'}</span>
-              </div>
-              <div className="stock-item">
-                <span className="stock-label">Dalam Perjalanan</span>
-                <span className="stock-value">{product.dalamPerjalanan || '15'}</span>
               </div>
             </div>
           </div>

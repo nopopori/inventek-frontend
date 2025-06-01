@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import axios from '../api/axios';
 import Sidebar from './sidebar';
 import './Product.css';
 import ModalProduct from '../components/modal/ModalProduct';
@@ -6,334 +7,207 @@ import ProductDetail from './ProductDetail';
 
 const Product = () => {
   const [productData, setProductData] = useState([]);
+  const [kategoriList, setKategoriList] = useState([]);
+  const [gudangList, setGudangList] = useState([]);
+
   const [showAddModal, setShowAddModal] = useState(false);
   const [showDetail, setShowDetail] = useState(false);
   const [selectedProduct, setSelectedProduct] = useState(null);
+
   const [formData, setFormData] = useState({
-    namaProduct: '',
-    kategoriProduct: '',
-    jumlah: '',
-    deskripsi: '',
-    fotoProduct: null,
+    nama: '',
+    idkategori: '',
+    stock: '',
+    keterangan: '',
+    idgudang: '',
+    foto_produk: null,
+    masukkan_ke_barang_masuk: false,
   });
 
-  // State untuk edit
   const [isEditMode, setIsEditMode] = useState(false);
   const [editId, setEditId] = useState(null);
 
-  // State untuk pagination
+  // Pagination
   const [currentPage, setCurrentPage] = useState(1);
-  const [totalPages, setTotalPages] = useState(1);
   const itemsPerPage = 6;
+  const totalPages = Math.ceil(productData.length / itemsPerPage);
 
-  // Load mock data
+  // Load products, kategori, gudang on mount
   useEffect(() => {
-    const mockData = [
-      {
-        id: 1,
-        nama_produk: 'Maggi',
-        jumlah: 'Rp.430',
-        gudang: '43 Packets',
-        kategori: 'Rp.430',
-        gambar: 'Rp.430',
-        deskripsi: 'Lorem ipsum dolor sit amet, consectetur adipiscing elit.',
-        productId: '456567',
-        kategoriProduk: 'Makanan',
-        tanggalMasuk: '13/4/23',
-        stokProduk: 12,
-        namaGudang: 'Ronald Martin',
-        lokasiGudang: '98789 86757',
-        deskripsiProduk: 'Penyedap makanan',
-        jumlahAwal: 40,
-        sisaProduk: 34,
-        dalamPerjalanan: 15
-      },
-      {
-        id: 2,
-        nama_produk: 'Bru',
-        jumlah: 'Rp.257',
-        gudang: '22 Packets',
-        kategori: 'Rp.257',
-        gambar: 'Rp.257',
-        deskripsi: 'Lorem ipsum dolor sit amet, consectetur adipiscing elit.',
-        productId: '456568',
-        kategoriProduk: 'Minuman',
-        tanggalMasuk: '14/4/23',
-        stokProduk: 8,
-        namaGudang: 'Ronald Martin',
-        lokasiGudang: '98789 86757',
-        deskripsiProduk: 'Kopi instan',
-        jumlahAwal: 30,
-        sisaProduk: 22,
-        dalamPerjalanan: 8
-      },
-      {
-        id: 3,
-        nama_produk: 'Red Bull',
-        jumlah: 'Rp.405',
-        gudang: '38 Packets',
-        kategori: 'Rp.405',
-        gambar: 'Rp.405',
-        deskripsi: 'Lorem ipsum dolor sit amet, consectetur adipiscing elit.',
-        productId: '456569',
-        kategoriProduk: 'Minuman',
-        tanggalMasuk: '15/4/23',
-        stokProduk: 25,
-        namaGudang: 'Ronald Martin',
-        lokasiGudang: '98789 86757',
-        deskripsiProduk: 'Energy drink',
-        jumlahAwal: 50,
-        sisaProduk: 38,
-        dalamPerjalanan: 12
-      },
-      {
-        id: 4,
-        nama_produk: 'Bourn Vita',
-        jumlah: 'Rp.502',
-        gudang: '14 Packets',
-        kategori: 'Rp.502',
-        gambar: 'Rp.502',
-        deskripsi: 'Lorem ipsum dolor sit amet, consectetur adipiscing elit.',
-        productId: '456570',
-        kategoriProduk: 'Minuman',
-        tanggalMasuk: '16/4/23',
-        stokProduk: 18,
-        namaGudang: 'Ronald Martin',
-        lokasiGudang: '98789 86757',
-        deskripsiProduk: 'Susu coklat',
-        jumlahAwal: 35,
-        sisaProduk: 14,
-        dalamPerjalanan: 21
-      },
-      {
-        id: 5,
-        nama_produk: 'Horlicks',
-        jumlah: 'Rp.530',
-        gudang: '5 Packets',
-        kategori: 'Rp.530',
-        gambar: 'Rp.530',
-        deskripsi: 'Lorem ipsum dolor sit amet, consectetur adipiscing elit.',
-        productId: '456571',
-        kategoriProduk: 'Minuman',
-        tanggalMasuk: '17/4/23',
-        stokProduk: 5,
-        namaGudang: 'Ronald Martin',
-        lokasiGudang: '98789 86757',
-        deskripsiProduk: 'Susu malt',
-        jumlahAwal: 25,
-        sisaProduk: 5,
-        dalamPerjalanan: 20
-      },
-      {
-        id: 6,
-        nama_produk: 'Harpic',
-        jumlah: 'Rp.605',
-        gudang: '10 Packets',
-        kategori: 'Rp.605',
-        gambar: 'Rp.605',
-        deskripsi: 'Lorem ipsum dolor sit amet, consectetur adipiscing elit.',
-        productId: '456572',
-        kategoriProduk: 'Pembersih',
-        tanggalMasuk: '18/4/23',
-        stokProduk: 10,
-        namaGudang: 'Ronald Martin',
-        lokasiGudang: '98789 86757',
-        deskripsiProduk: 'Pembersih toilet',
-        jumlahAwal: 20,
-        sisaProduk: 10,
-        dalamPerjalanan: 10
-      },
-      {
-        id: 7,
-        nama_produk: 'Ariel',
-        jumlah: 'Rp.408',
-        gudang: '23 Packets',
-        kategori: 'Rp.408',
-        gambar: 'Rp.408',
-        deskripsi: 'Lorem ipsum dolor sit amet, consectetur adipiscing elit.',
-        productId: '456573',
-        kategoriProduk: 'Pembersih',
-        tanggalMasuk: '19/4/23',
-        stokProduk: 23,
-        namaGudang: 'Ronald Martin',
-        lokasiGudang: '98789 86757',
-        deskripsiProduk: 'Deterjen cuci',
-        jumlahAwal: 45,
-        sisaProduk: 23,
-        dalamPerjalanan: 22
-      },
-      {
-        id: 8,
-        nama_produk: 'Scotch Brite',
-        jumlah: 'Rp.359',
-        gudang: '43 Packets',
-        kategori: 'Rp.359',
-        gambar: 'Rp.359',
-        deskripsi: 'Lorem ipsum dolor sit amet, consectetur adipiscing elit.',
-        productId: '456574',
-        kategoriProduk: 'Pembersih',
-        tanggalMasuk: '20/4/23',
-        stokProduk: 43,
-        namaGudang: 'Ronald Martin',
-        lokasiGudang: '98789 86757',
-        deskripsiProduk: 'Spons cuci',
-        jumlahAwal: 60,
-        sisaProduk: 43,
-        dalamPerjalanan: 17
-      },
-      {
-        id: 9,
-        nama_produk: 'Coca Cola',
-        jumlah: 'Rp.205',
-        gudang: '41 Packets',
-        kategori: 'Rp.205000',
-        gambar: 'Rp.205.000',
-        deskripsi: 'Lorem ipsum dolor sit amet, consectetur adipiscing elit.',
-        productId: '456575',
-        kategoriProduk: 'Minuman',
-        tanggalMasuk: '21/4/23',
-        stokProduk: 41,
-        namaGudang: 'Ronald Martin',
-        lokasiGudang: '98789 86757',
-        deskripsiProduk: 'Minuman bersoda',
-        jumlahAwal: 50,
-        sisaProduk: 41,
-        dalamPerjalanan: 9
-      }
-    ];
-    
-    setProductData(mockData);
-    setTotalPages(Math.ceil(mockData.length / itemsPerPage));
+    fetchProducts();
+    fetchKategori();
+    fetchGudang();
   }, []);
 
-  // Handle form input changes
-  const handleInputChange = (e) => {
-    const { name, value } = e.target;
+  const fetchProducts = async () => {
+    try {
+      const res = await axios.get('/product');
+      if (res.data.success) {
+        setProductData(res.data.data);
+      }
+    } catch (error) {
+      console.error('Error fetching products:', error);
+    }
+  };
+
+  const fetchKategori = async () => {
+    try {
+      const response = await axios.get('/kategori');
+      const data = response.data;
+       if (Array.isArray(data)) {
+        setKategoriList(data);
+      } else if (Array.isArray(data.data)) {
+        setKategoriList(data.data);
+      } else {
+        console.error('Format data kategori tidak valid:', data);
+        setKategoriList([]);
+      }
+    } catch (error) {
+      console.error('Gagal memuat data kategori:', error);
+    }
+  };
+
+  const fetchGudang = async () => {
+  try {
+      const response = await axios.get('/gudang');
+      const data = response.data;
+
+      if (Array.isArray(data)) {
+        setGudangList(data);
+      } else if (Array.isArray(data.data)) {
+        setGudangList(data.data);
+      } else {
+        console.error('Format data gudang tidak valid:', data);
+        setGudangList([]);
+      }
+    } catch (error) {
+      console.error('Gagal memuat data gudang:', error);
+    }
+  };
+
+  // Form handlers
+  const handleInputChange = e => {
+    const { name, value, type, checked } = e.target;
     setFormData(prev => ({
       ...prev,
-      [name]: value
+      [name]: type === 'checkbox' ? checked : value
     }));
   };
 
-  // Handle file upload
-  const handleFileChange = (e) => {
+  const handleFileChange = e => {
     const file = e.target.files[0];
     setFormData(prev => ({
       ...prev,
-      fotoProduct: file
+      foto_produk: file
     }));
   };
 
-  // Handle form submit
-  const handleSubmit = (e) => {
+  // Submit create/update
+  const handleSubmit = async e => {
     e.preventDefault();
-    
-    if (isEditMode) {
-      // Update existing product
-      setProductData(prev => prev.map(product => 
-        product.id === editId 
-          ? {
-              ...product,
-              nama_produk: formData.namaProduct,
-              kategoriProduk: formData.kategoriProduct,
-              stokProduk: parseInt(formData.jumlah),
-              deskripsiProduk: formData.deskripsi,
-              foto_produk: formData.fotoProduct ? URL.createObjectURL(formData.fotoProduct) : product.foto_produk
-            }
-          : product
-      ));
-    } else {
-      // Add new product
-      const newProduct = {
-        id: productData.length + 1,
-        nama_produk: formData.namaProduct,
-        jumlah: `Rp.${Math.floor(Math.random() * 500) + 200}`,
-        gudang: `${formData.jumlah} Packets`,
-        kategori: `Rp.${Math.floor(Math.random() * 500) + 200}`,
-        gambar: formData.fotoProduct ? URL.createObjectURL(formData.fotoProduct) : null,
-        deskripsi: formData.deskripsi,
-        productId: `45657${productData.length + 1}`,
-        kategoriProduk: formData.kategoriProduct,
-        tanggalMasuk: new Date().toLocaleDateString('en-GB'),
-        stokProduk: parseInt(formData.jumlah),
-        namaGudang: 'Ronald Martin',
-        lokasiGudang: '98789 86757',
-        deskripsiProduk: formData.deskripsi,
-        jumlahAwal: parseInt(formData.jumlah),
-        sisaProduk: parseInt(formData.jumlah),
-        dalamPerjalanan: 0,
-        foto_produk: formData.fotoProduct ? URL.createObjectURL(formData.fotoProduct) : null
-      };
-      
-      setProductData(prev => [...prev, newProduct]);
-      setTotalPages(Math.ceil((productData.length + 1) / itemsPerPage));
-    }
 
-    // Reset form and close modal
-    resetForm();
-    setShowAddModal(false);
+    try {
+      const data = new FormData();
+      data.append('nama', formData.nama);
+      data.append('idkategori', formData.idkategori);
+      data.append('stock', formData.stock);
+      data.append('keterangan', formData.keterangan);
+      data.append('idgudang', formData.idgudang);
+       data.append('masukkan_ke_barang_masuk', formData.masukkan_ke_barang_masuk ? '1' : '0');
+      if (formData.foto_produk) {
+        data.append('foto_produk', formData.foto_produk);
+      }
+if (isEditMode && editId) {
+  data.append('_method', 'PUT'); // tambahkan _method untuk override jadi PUT
+  await axios.post(`/product/${editId}`, data, {
+    headers: { 'Content-Type': 'multipart/form-data' }
+  });
+} else {
+  await axios.post('/product', data, {
+    headers: { 'Content-Type': 'multipart/form-data' }
+  });
+}
+
+      fetchProducts();
+      resetForm();
+      setShowAddModal(false);
+    } catch (error) {
+      if (error.response && error.response.data) {
+        alert(error.response.data.message || 'Error submitting form');
+      } else {
+        alert('Error submitting form');
+      }
+      console.error(error);
+    }
   };
 
-  // Reset form data
   const resetForm = () => {
     setFormData({
-      namaProduct: '',
-      kategoriProduct: '',
-      jumlah: '',
-      deskripsi: '',
-      fotoProduct: null,
+      nama: '',
+      idkategori: '',
+      stock: '',
+      keterangan: '',
+      idgudang: '',
+      foto_produk: null,
+      masukkan_ke_barang_masuk: false,
     });
     setIsEditMode(false);
     setEditId(null);
   };
 
-  // Handle add product
+  // Add / Edit product
   const handleAddProduct = () => {
     resetForm();
     setShowAddModal(true);
   };
 
-  // Handle edit product
   const handleEditProduct = (product) => {
-    setFormData({
-      namaProduct: product.nama_produk,
-      kategoriProduct: product.kategoriProduk,
-      jumlah: product.stokProduk.toString(),
-      deskripsi: product.deskripsiProduk || product.deskripsi,
-      fotoProduct: null,
-    });
-    setIsEditMode(true);
-    setEditId(product.id);
-    setShowAddModal(true);
-  };
+  console.log('Product to edit:', product);
+  console.log('Kategori ID:', product.kategori?.idkategori);
+  console.log('Gudang ID:', product.kategori?.gudang?.id);
 
-  // Handle delete product
-  const handleDeleteProduct = (id) => {
+  setFormData({
+    nama: product.nama || '',
+    idkategori: product.idkategori || '',
+    stock: product.stock?.toString() || '',
+    keterangan: product.keterangan || '',
+    idgudang: product.kategori?.gudang?.id || '',
+    foto_produk: null,
+    masukkan_ke_barang_masuk: false,
+  });
+
+  setIsEditMode(true);
+  setEditId(product.id);
+  setShowAddModal(true);
+};
+  const handleDeleteProduct = async (id) => {
     if (window.confirm('Apakah Anda yakin ingin menghapus produk ini?')) {
-      setProductData(prev => prev.filter(product => product.id !== id));
-      setTotalPages(Math.ceil((productData.length - 1) / itemsPerPage));
+      try {
+        await axios.delete(`/product/${id}`);
+        fetchProducts();
+      } catch (error) {
+        alert('Gagal menghapus produk');
+        console.error(error);
+      }
     }
   };
 
-  // Handle view product detail
   const handleViewProduct = (product) => {
     setSelectedProduct(product);
     setShowDetail(true);
   };
 
-  // Handle close modal
   const handleCloseModal = () => {
     setShowAddModal(false);
     resetForm();
   };
 
-  // Handle back from detail
   const handleBackFromDetail = () => {
     setShowDetail(false);
     setSelectedProduct(null);
   };
 
-  // Handle pagination
+  // Pagination handlers
   const handlePrevPage = () => {
     setCurrentPage(prev => Math.max(prev - 1, 1));
   };
@@ -342,30 +216,19 @@ const Product = () => {
     setCurrentPage(prev => Math.min(prev + 1, totalPages));
   };
 
-  // Get current page data
   const getCurrentPageData = () => {
     const startIndex = (currentPage - 1) * itemsPerPage;
-    const endIndex = startIndex + itemsPerPage;
-    return productData.slice(startIndex, endIndex);
+    return productData.slice(startIndex, startIndex + itemsPerPage);
   };
 
-  // Calculate overview stats
-  const getOverviewStats = () => {
-    const categories = [...new Set(productData.map(p => p.kategoriProduk))];
-    const lowStockProducts = productData.filter(p => p.stokProduk < 10);
-    const totalStock = productData.reduce((sum, p) => sum + p.stokProduk, 0);
-    
-    return {
-      categories: categories.length,
-      totalProducts: productData.length,
-      totalStock,
-      lowStocks: lowStockProducts.length
-    };
+  // Overview stats
+  const overviewStats = {
+    categories: [...new Set(productData.map(p => p.kategori?.nama_kategori))].length,
+    totalProducts: productData.length,
+    totalStock: productData.reduce((sum, p) => sum + (p.stock || 0), 0),
+    lowStocks: productData.filter(p => (p.stock || 0) < 10).length,
   };
 
-  const overviewStats = getOverviewStats();
-
-  // Show detail view if selected
   if (showDetail && selectedProduct) {
     return (
       <ProductDetail 
@@ -423,94 +286,74 @@ const Product = () => {
           <table className="data-table">
             <thead>
               <tr>
-                <th>Products</th>
-                <th>Buying Price</th>
-                <th>Quantity</th>
-                <th>Threshold Value</th>
-                <th>Expiry Date</th>
-                <th>Availability</th>
-                <th>Action</th>
+                <th>Nama Produk</th>
+                <th>Kategori</th>
+                <th>Gudang</th>
+                <th>Stock</th>
+                <th>Keterangan</th>
+                <th>Foto Produk</th>
+                <th>Actions</th>
               </tr>
             </thead>
             <tbody>
-              {getCurrentPageData().map((product) => (
+              {getCurrentPageData().map(product => (
                 <tr key={product.id}>
+                  <td>{product.nama}</td>
+                  <td>{product.kategori?.nama_kategori || '-'}</td>
+                  <td>{product.kategori?.gudang?.nama_gudang || '-'}</td> 
+                  <td>{product.stock}</td>
+                  <td>{product.keterangan}</td>
+                 <td>
+  {product.foto_produk ? (
+    <img
+      src={`http://localhost:8000/storage/${product.foto_produk}`}
+      alt={product.nama}
+      className="product-photo"
+    />
+  ) : (
+    'No Image'
+  )}
+</td>
                   <td>
-                    <span 
-                      className="product-name"
-                      onClick={() => handleViewProduct(product)}
-                    >
-                      {product.nama_produk}
-                    </span>
-                  </td>
-                  <td>{product.jumlah}</td>
-                  <td>{product.gudang}</td>
-                  <td>{product.kategori}</td>
-                  <td>{product.tanggalMasuk}</td>
-                  <td>{product.gambar}</td>
-                  <td>
-                    <div className="action-buttons">
-                      <button 
-                        className="action-btn view-btn"
-                        onClick={() => handleViewProduct(product)}
-                        title="View"
-                      >
-                        👁️
-                      </button>
-                      <button 
-                        className="action-btn edit-btn"
-                        onClick={() => handleEditProduct(product)}
-                        title="Edit"
-                      >
-                        ✏️
-                      </button>
-                      <button 
-                        className="action-btn delete-btn"
-                        onClick={() => handleDeleteProduct(product.id)}
-                        title="Delete"
-                      >
-                        🗑️
-                      </button>
-                    </div>
+                    <button onClick={() => handleViewProduct(product)}>View</button>
+                    <button onClick={() => handleEditProduct(product)}>Edit</button>
+                    <button onClick={() => handleDeleteProduct(product.id)}>Delete</button>
                   </td>
                 </tr>
               ))}
+              {productData.length === 0 && (
+                <tr>
+                  <td colSpan="7" style={{ textAlign: 'center' }}>No products found</td>
+                </tr>
+              )}
             </tbody>
           </table>
         </div>
 
-        {/* Pagination */}
+        {/* Pagination Controls */}
         <div className="pagination">
-          <button 
-            className="pagination-btn" 
-            onClick={handlePrevPage}
-            disabled={currentPage === 1}
-          >
-            Previous
+          <button onClick={handlePrevPage} disabled={currentPage === 1}>
+            &lt; Prev
           </button>
-          <span className="page-info">
-            Page {currentPage} of {totalPages}
-          </span>
-          <button 
-            className="pagination-btn" 
-            onClick={handleNextPage}
-            disabled={currentPage === totalPages}
-          >
-            Next
+          <span>Page {currentPage} of {totalPages}</span>
+          <button onClick={handleNextPage} disabled={currentPage === totalPages}>
+            Next &gt;
           </button>
         </div>
-      </div>
 
-      {/* Modal */}
-      <ModalProduct
+        {/* Modal Add/Edit Product */}
+         <ModalProduct
         show={showAddModal}
         onClose={handleCloseModal}
         formData={formData}
         onChange={handleInputChange}
         onFileChange={handleFileChange}
         onSubmit={handleSubmit}
-        isEdit={isEditMode}
+        isEditMode={false}
+        kategoriList={kategoriList}
+        gudangList={gudangList}
       />
+      </div>
     </div>
   );
 };

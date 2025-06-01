@@ -849,3 +849,9 @@ body {
     width: 100%;
   }
 }
+.product-photo {
+  width: 80px;
+  height: 80px;
+  object-fit: cover;
+  border-radius: 8px;
+}
