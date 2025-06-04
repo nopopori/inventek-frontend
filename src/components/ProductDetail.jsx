@@ -78,7 +78,7 @@ const ProductDetail = ({ product, onBack, onEdit }) => {
                   <img 
                     src={product.foto_produk} 
                     alt={product.nama_produk}
-                    style={{ width: '100%', borderRadius: '10px' }}
+                    style={{width: '100%', height: '100%', objectFit: 'cover', borderRadius: '8px' }}
                   />
                 ) : (
                   <p>Foto tidak tersedia</p>

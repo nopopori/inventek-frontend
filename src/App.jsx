@@ -7,6 +7,7 @@ import ProfilePage from './components/ProfilePage';
 import Gudang from './components/Gudang';
 import Kategori from './components/Kategori';
 import Product from './components/Product';
+import Laporan from './components/Laporan';
 import ProtectedRoute from './components/ProtectedRoute';
 
 function App() {
@@ -54,6 +55,14 @@ function App() {
         element={
           <ProtectedRoute>
             <ProfilePage />
+          </ProtectedRoute>
+        }
+        />
+        <Route
+        path="/laporan"
+        element={
+          <ProtectedRoute>
+            <Laporan />
           </ProtectedRoute>
         }
         />
