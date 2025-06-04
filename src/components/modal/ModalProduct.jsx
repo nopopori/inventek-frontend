@@ -1,103 +1,139 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 
-const ModalProduct = ({ show, onClose, formData, onChange, onFileChange, onSubmit, isEdit }) => {
+const ModalProduct = ({
+  show,
+  onClose,
+  formData,
+  onChange,
+  onFileChange,
+  onSubmit,
+  isEditMode,
+  kategoriList,
+  gudangList,
+}) => {
+  const [filteredKategori, setFilteredKategori] = useState([]);
+
+  // Filter kategori setiap kali formData.idgudang berubah
+  useEffect(() => {
+    if (formData.idgudang) {
+      const filtered = kategoriList.filter(k => k.idgudang?.toString() === formData.idgudang.toString());
+      setFilteredKategori(filtered);
+    } else {
+      setFilteredKategori([]);
+    }
+  }, [formData.idgudang, kategoriList]);
+
   if (!show) return null;
 
   return (
     <div className="modal-overlay" onClick={onClose}>
-      <div className="modal-content" onClick={(e) => e.stopPropagation()}>
+      <div className="modal-content" onClick={e => e.stopPropagation()}>
         <div className="modal-header">
-          <h2>{isEdit ? 'Edit Produk' : 'Tambah Produk'}</h2>
-          <button className="close-btn" onClick={onClose}>
-            ×
-          </button>
+          <h2>{isEditMode ? 'Edit Produk' : 'Tambah Produk'}</h2>
+          <button className="close-btn" onClick={onClose}>×</button>
         </div>
-        
-        <form className="product-form" onSubmit={onSubmit}>
-          {/* Upload Section */}
-          <div className="upload-section">
-            <div className="upload-area">
-              {formData.fotoProduct ? (
-                <div className="file-preview">
-                  <span className="file-icon">📁</span>
-                  <span className="file-name">{formData.fotoProduct.name}</span>
-                </div>
-              ) : (
-                <div className="upload-placeholder">
-                  <div className="upload-icon">📷</div>
-                  <div className="upload-text">
-                    <div className="upload-main">Tarik Foto Kesini</div>
-                    <div className="upload-sub">atau Pilih foto</div>
-                  </div>
-                </div>
-              )}
-              <input
-                type="file"
-                className="file-input"
-                accept="image/*"
-                onChange={onFileChange}
-              />
-            </div>
-          </div>
 
-          {/* Form Fields */}
-          <div className="form-row">
-            <div className="form-group">
-              <label>Nama Produk</label>
-              <input
-                type="text"
-                name="namaProduct"
-                value={formData.namaProduct}
-                onChange={onChange}
-                placeholder="Masukkan Nama Produk"
-                required
-              />
-            </div>
-            <div className="form-group">
-              <label>Kategori Produk</label>
-              <select
-                name="kategoriProduct"
-                value={formData.kategoriProduct}
-                onChange={onChange}
-                required
-              >
-                <option value="">Pilih Kategori Produk</option>
-                <option value="Makanan">Makanan</option>
-                <option value="Minuman">Minuman</option>
-                <option value="Pembersih">Pembersih</option>
-                <option value="Elektronik">Elektronik</option>
-                <option value="Pakaian">Pakaian</option>
-                <option value="Lainnya">Lainnya</option>
-              </select>
-            </div>
+        <form onSubmit={onSubmit} encType="multipart/form-data" className="product-form">
+          <div className="form-group">
+            <label htmlFor="nama">Nama Produk</label>
+            <input
+              type="text"
+              id="nama"
+              name="nama"
+              value={formData.nama}
+              onChange={onChange}
+              placeholder="Masukkan nama produk"
+              required
+            />
           </div>
 
           <div className="form-group">
-            <label>Jumlah</label>
+            <label htmlFor="idgudang">Gudang</label>
+            <select
+              id="idgudang"
+              name="idgudang"
+              value={formData.idgudang || ''}
+              onChange={onChange}
+              required
+            >
+              <option value="">Pilih Gudang</option>
+              {gudangList.map((g, index) => (
+                <option key={g.id ?? index} value={g.id?.toString() ?? ''}>
+                  {g.nama_gudang || 'Gudang Tidak Diketahui'}
+                </option>
+              ))}
+            </select>
+          </div>
+
+          <div className="form-group">
+            <label htmlFor="idkategori">Kategori</label>
+            <select
+              id="idkategori"
+              name="idkategori"
+              value={formData.idkategori || ''}
+              onChange={onChange}
+              required
+              disabled={!formData.idgudang} // Disable kalau belum pilih gudang
+            >
+              <option value="">Pilih Kategori</option>
+              {filteredKategori.length > 0 ? (
+                filteredKategori.map((k, index) => (
+                  <option key={k.idkategori ?? index} value={k.idkategori?.toString() ?? ''}>
+                    {k.nama_kategori || 'Kategori Tidak Diketahui'}
+                  </option>
+                ))
+              ) : (
+                <option value="" disabled>Tidak ada kategori untuk gudang ini</option>
+              )}
+            </select>
+          </div>
+
+          <div className="form-group">
+            <label htmlFor="stock">Stock</label>
             <input
               type="number"
-              name="jumlah"
-              value={formData.jumlah}
+              id="stock"
+              name="stock"
+              value={formData.stock}
               onChange={onChange}
-              placeholder="Masukkan Jumlah Produk"
               min="0"
               required
             />
           </div>
 
           <div className="form-group">
-            <label>Deskripsi</label>
+            <label htmlFor="keterangan">Keterangan</label>
             <textarea
-              name="deskripsi"
-              value={formData.deskripsi}
+              id="keterangan"
+              name="keterangan"
+              value={formData.keterangan}
               onChange={onChange}
-              placeholder="Masukkan Deskripsi Produk"
-              rows="4"
+              rows={3}
+              placeholder="Deskripsi produk (opsional)"
             />
           </div>
 
           <div className="form-group">
-            <label>Buang Perubahan</label>
+            <label htmlFor="foto_produk">Foto Produk</label>
+            <input
+              type="file"
+              id="foto_produk"
+              name="foto_produk"
+              onChange={onFileChange}
+              accept="image/*"
+            />
+          </div>
+
+          <div className="form-group checkbox-group">
+            <label>
+              <input
+                type="checkbox"
+                name="masukkan_ke_barang_masuk"
+                checked={formData.masukkan_ke_barang_masuk || false}
+                onChange={onChange}
+              />
+              Masukkan ke Barang Masuk
+            </label>
           </div>
 
           <div className="form-actions">
@@ -105,7 +141,7 @@ const ModalProduct = ({ show, onClose, formData, onChange, onFileChange, onSubmi
               Batal
             </button>
             <button type="submit" className="submit-btn">
-              {isEdit ? 'Update Produk' : 'Tambah Produk'}
+              {isEditMode ? 'Update Produk' : 'Tambah Produk'}
             </button>
           </div>
         </form>

@@ -1,14 +1,26 @@
 import React, { useEffect, useState } from 'react';
 import './ProfilePage.css';
-import { ChevronRight, Search, Bell, ChevronDown, Mail, Plus } from 'lucide-react';
+import { Search, Bell } from 'lucide-react';
 import defaultProfileImage from '../assets/profile.jpg';
 import Sidebar from './sidebar';
 import api from '../api/axios';
+import ModalEditProfile from './modal/ModalEditProfile.jsx';
+
 const ProfilePage = () => {
   const [profile, setProfile] = useState({
     name: '',
     email: '',
     phone: '',
+    profile_photo_url: null, // tambah field foto profil URL
+  });
+
+  const [showModal, setShowModal] = useState(false);
+  const [notification, setNotification] = useState('');
+  const [editFormData, setEditFormData] = useState({
+    name: '',
+    email: '',
+    phone: '',
+    profile_photo: null, // untuk file foto baru
   });
 
   const currentDate = new Date();
@@ -31,6 +43,58 @@ const ProfilePage = () => {
       });
   }, []);
 
+  const handleEditClick = () => {
+    setEditFormData({
+      name: profile.name || '',
+      email: profile.email || '',
+      phone: profile.phone || '',
+      profile_photo: null,
+    });
+    setShowModal(true);
+  };
+
+  const handleInputChange = (e) => {
+    const { name, value, files } = e.target;
+    if (name === 'profile_photo') {
+      setEditFormData(prev => ({ ...prev, profile_photo: files[0] || null }));
+    } else {
+      setEditFormData(prev => ({ ...prev, [name]: value }));
+    }
+  };
+
+  const handleUpdateSubmit = async (e) => {
+    e.preventDefault();
+
+    try {
+      const formData = new FormData();
+      formData.append('name', editFormData.name);
+      formData.append('email', editFormData.email);
+      formData.append('phone', editFormData.phone);
+
+      if (editFormData.profile_photo) {
+        formData.append('profile_photo', editFormData.profile_photo);
+      }
+      formData.append('_method', 'PUT');
+
+      const res = await api.post('/update', formData, {
+        headers: {
+          'Content-Type': 'multipart/form-data',
+        }
+      });
+
+      if (res.data.success) {
+  setProfile(res.data.user);
+  setShowModal(false);
+  setNotification('Profil berhasil diperbarui!');
+  setTimeout(() => setNotification(''), 3000);
+      } else {
+        console.error('Update gagal:', res.data);
+      }
+    } catch (error) {
+      console.error('Terjadi kesalahan saat update:', error.response?.data || error);
+    }
+  };
+
   return (
     <div className="app-container">
       <Sidebar />
@@ -50,7 +114,10 @@ const ProfilePage = () => {
               <Bell size={20} />
             </div>
             <div className="profile-avatar">
-              <img src={defaultProfileImage} alt="Profile" />
+              <img
+                src={profile.profile_photo_url || defaultProfileImage}
+                alt={profile.name}
+              />
             </div>
           </div>
         </header>
@@ -58,13 +125,16 @@ const ProfilePage = () => {
         <div className="profile-content">
           <div className="profile-header">
             <div className="profile-avatar-large">
-              <img src={defaultProfileImage} alt={profile.name} />
+              <img
+                src={profile.profile_photo_url || defaultProfileImage}
+                alt={profile.name}
+              />
             </div>
             <div className="profile-header-info">
               <h2>{profile.name}</h2>
               <p>{profile.email}</p>
             </div>
-            <button className="edit-button">Edit</button>
+            <button className="edit-button" onClick={handleEditClick}>Edit</button>
           </div>
 
           <div className="profile-form">
@@ -73,7 +143,6 @@ const ProfilePage = () => {
                 <label>Full Name</label>
                 <input
                   type="text"
-                  placeholder="Your First Name"
                   className="form-control"
                   value={profile.name}
                   readOnly
@@ -83,7 +152,6 @@ const ProfilePage = () => {
                 <label>Email</label>
                 <input
                   type="text"
-                  placeholder="Your Email"
                   className="form-control"
                   value={profile.email}
                   readOnly
@@ -93,7 +161,6 @@ const ProfilePage = () => {
                 <label>Phone</label>
                 <input
                   type="text"
-                  placeholder="Your Phone"
                   className="form-control"
                   value={profile.phone}
                   readOnly
@@ -103,7 +170,25 @@ const ProfilePage = () => {
           </div>
         </div>
       </div>
+
+      {/* Modal Edit */}
+      <ModalEditProfile
+        show={showModal}
+        onClose={() => setShowModal(false)}
+        formData={editFormData}
+        onChange={handleInputChange}
+        onSubmit={handleUpdateSubmit}
+      />
+      {notification && (
+  <div className="notification success">
+    {notification}
+  </div>
+)}
+
     </div>
+    
+
   );
 };
+
 export default ProfilePage;

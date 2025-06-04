@@ -1,6 +1,15 @@
+// ModalKategori.jsx (update minor)
 import React from 'react';
 
-const ModalKategori = ({ show, onClose, formData, onChange, onSubmit, isEdit }) => {
+const ModalKategori = ({
+  show,
+  onClose,
+  formData,
+  onChange,
+  onSubmit,
+  isEdit,
+  gudangList,
+}) => {
   if (!show) return null;
 
   return (
@@ -10,12 +19,13 @@ const ModalKategori = ({ show, onClose, formData, onChange, onSubmit, isEdit }) 
           <h2>{isEdit ? 'Edit Kategori' : 'Tambah Kategori'}</h2>
           <button className="close-btn" onClick={onClose}>×</button>
         </div>
-        
+
         <form className="kategori-form" onSubmit={onSubmit}>
           <div className="form-group">
-            <label>Nama Kategori</label>
+            <label htmlFor="namaKategori">Nama Kategori</label>
             <input
               type="text"
+              id="namaKategori"
               name="namaKategori"
               value={formData.namaKategori}
               onChange={onChange}
@@ -23,24 +33,29 @@ const ModalKategori = ({ show, onClose, formData, onChange, onSubmit, isEdit }) 
               required
             />
           </div>
-          
+
           <div className="form-row">
             <div className="form-group">
-              <label>Gudang</label>
-              <input
-                type="text"
+              <label htmlFor="gudang">Gudang</label>
+              <select
+                id="gudang"
                 name="gudang"
                 value={formData.gudang}
                 onChange={onChange}
-                placeholder="Masukkan gudang"
                 required
-              />
+              >
+                <option value="">Pilih Gudang</option>
+                {gudangList.map(g => (
+                  <option key={g.id} value={g.id}>{g.nama_gudang}</option>
+                ))}
+              </select>
             </div>
-            
+
             <div className="form-group">
-              <label>Deskripsi</label>
+              <label htmlFor="deskripsi">Deskripsi</label>
               <input
                 type="text"
+                id="deskripsi"
                 name="deskripsi"
                 value={formData.deskripsi}
                 onChange={onChange}
@@ -49,7 +64,7 @@ const ModalKategori = ({ show, onClose, formData, onChange, onSubmit, isEdit }) 
               />
             </div>
           </div>
-          
+
           <div className="form-actions">
             <button type="button" className="cancel-btn" onClick={onClose}>
               Buang Perubahan

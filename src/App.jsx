@@ -33,6 +33,23 @@ function App() {
         }
       />
       <Route
+        path="/kategori"
+        element={
+          <ProtectedRoute>
+            <Kategori />
+          </ProtectedRoute>
+        }
+      />
+     
+      <Route
+        path="/product"
+        element={
+          <ProtectedRoute>
+            <Product />
+          </ProtectedRoute>
+        }
+      />
+      <Route
         path="/profile"
         element={
           <ProtectedRoute>
