@@ -1,8 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import './Laporan.css';
 import Sidebar from './sidebar';
-import ModalLaporan from '../components/modal/ModalLaporan';
 import ModalBarangMasuk from '../components/modal/ModalBarangMasuk';
+import ModalBarangKeluar from '../components/modal/ModalBarangKeluar';
 
 import axios from '../api/axios';
 import { PlusCircle, Download, Trash2 } from 'lucide-react';
@@ -94,12 +94,8 @@ const Laporan = () => {
 
   return (
     <div className="laporan-container">
-      {/* Sidebar */}
       <Sidebar />
-
-      {/* Main Content */}
       <div className="main-content">
-        {/* Header Tabs */}
         <div className="content-header">
           <div className="tabs">
             <button
@@ -121,7 +117,6 @@ const Laporan = () => {
               Barang Keluar
             </button>
           </div>
-
           <div className="header-actions">
             <button
               className="add-product-btn"
@@ -129,7 +124,7 @@ const Laporan = () => {
               disabled={loading}
             >
               <PlusCircle size={16} />
-              {activeTab === 'masuk' ? 'Tambah Barang Masuk' : 'Add Product'}
+              {activeTab === 'masuk' ? 'Tambah Barang Masuk' : 'Tambah Barang Keluar'}
             </button>
             <button
               className="filters-btn"
@@ -141,10 +136,7 @@ const Laporan = () => {
             </button>
           </div>
         </div>
-
         {error && <div className="error-message">{error}</div>}
-
-        {/* Table */}
         <div className="table-container">
           {loading ? (
             <div className="loading-indicator">Loading...</div>
@@ -154,36 +146,75 @@ const Laporan = () => {
             <table className="data-table">
               <thead>
                 <tr>
-                  <th>Nama Produk</th>
-                  {activeTab === 'masuk' && <th>Stock Masuk</th>}
-                  {activeTab === 'masuk' && <th>Tanggal Masuk</th>}
-                  <th>Gudang</th>
-                  <th>Kategori</th>
-                  <th>Keterangan</th>
-                  <th>Action</th>
+                  {activeTab === 'masuk' ? (
+                    <>
+                      <th>Nama Produk</th>
+                      <th>Stock Masuk</th>
+                      <th>Tanggal Masuk</th>
+                      <th>Gudang</th>
+                      <th>Kategori</th>
+                      <th>Keterangan</th>
+                      <th>Action</th>
+                    </>
+                  ) : (
+                    <>
+                      <th>Nama Produk</th>
+                      <th>Stock Keluar</th>
+                      <th>Tanggal Keluar</th>
+                      <th>Alasan Keluar</th>
+                      <th>Gudang</th>
+                      <th>Kategori</th>
+                      <th>Action</th>
+                    </>
+                  )}
                 </tr>
               </thead>
               <tbody>
                 {currentData.map((item) => (
                   <tr key={item.id}>
-                    <td>{item.nama_produk || item.produk?.nama || '—'}</td>
-                    {activeTab === 'masuk' && <td>{item.stock_masuk}</td>}
-                    {activeTab === 'masuk' && <td>{new Date(item.tanggal_masuk).toLocaleDateString()}</td>}
-                    <td>{item.nama_gudang || item.produk?.kategori?.gudang?.nama_gudang || '—'}</td>
-                    <td>{item.nama_kategori || item.produk?.kategori?.nama_kategori || '—'}</td>
-                    <td>{item.keterangan || '—'}</td>
-                    <td>
-                      <div className="action-buttons">
-                        <button
-                          className="action-btn delete-btn"
-                          onClick={() => handleDelete(item.id)}
-                          title="Delete"
-                          disabled={loading}
-                        >
-                          <Trash2 size={16} />
-                        </button>
-                      </div>
-                    </td>
+                    {activeTab === 'masuk' ? (
+                      <>
+                        <td>{item.nama_produk || item.produk?.nama || '—'}</td>
+                        <td>{item.stock_masuk}</td>
+                        <td>{item.tanggal_masuk ? new Date(item.tanggal_masuk).toLocaleDateString() : '—'}</td>
+                        <td>{item.nama_gudang || item.produk?.kategori?.gudang?.nama_gudang || '—'}</td>
+                        <td>{item.nama_kategori || item.produk?.kategori?.nama_kategori || '—'}</td>
+                        <td>{item.keterangan || '—'}</td>
+                        <td>
+                          <div className="action-buttons">
+                            <button
+                              className="action-btn delete-btn"
+                              onClick={() => handleDelete(item.id)}
+                              title="Delete"
+                              disabled={loading}
+                            >
+                              <Trash2 size={16} />
+                            </button>
+                          </div>
+                        </td>
+                      </>
+                    ) : (
+                      <>
+                        <td>{item.nama_produk || item.produk?.nama || '—'}</td>
+                        <td>{item.stock_keluar}</td>
+                        <td>{item.tanggal_keluar ? new Date(item.tanggal_keluar).toLocaleDateString() : '—'}</td>
+                        <td>{item.alasan_keluar || '—'}</td>
+                        <td>{item.nama_gudang || item.produk?.kategori?.gudang?.nama_gudang || '—'}</td>
+                        <td>{item.nama_kategori || item.produk?.kategori?.nama_kategori || '—'}</td>
+                        <td>
+                          <div className="action-buttons">
+                            <button
+                              className="action-btn delete-btn"
+                              onClick={() => handleDelete(item.id)}
+                              title="Delete"
+                              disabled={loading}
+                            >
+                              <Trash2 size={16} />
+                            </button>
+                          </div>
+                        </td>
+                      </>
+                    )}
                   </tr>
                 ))}
               </tbody>
@@ -191,7 +222,6 @@ const Laporan = () => {
           )}
         </div>
 
-        {/* Pagination */}
         <div className="pagination">
           <button 
             className="pagination-btn" 
@@ -211,7 +241,6 @@ const Laporan = () => {
         </div>
       </div>
 
-      {/* Modals */}
       {activeTab === 'masuk' ? (
         <ModalBarangMasuk 
           isOpen={isModalOpen}
@@ -219,7 +248,7 @@ const Laporan = () => {
           refreshData={fetchData}
         />
       ) : (
-        <ModalLaporan 
+        <ModalBarangKeluar 
           isOpen={isModalOpen} 
           onClose={() => setIsModalOpen(false)}
           refreshData={fetchData}
