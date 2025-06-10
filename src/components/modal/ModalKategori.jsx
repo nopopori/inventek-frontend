@@ -36,11 +36,11 @@ const ModalKategori = ({
 
           <div className="form-row">
             <div className="form-group">
-              <label htmlFor="gudang">Gudang</label>
+              <label htmlFor="idgudang">Gudang</label>
               <select
-                id="gudang"
-                name="gudang"
-                value={formData.gudang}
+                id="idgudang"
+                name="idgudang"
+                value={formData.idgudang}
                 onChange={onChange}
                 required
               >

@@ -92,26 +92,37 @@ const Kategori = () => {
   const handleSubmitForm = async (e) => {
     e.preventDefault();
 
+    console.log('Form data submitted:', formData);
+
     const payload = {
       nama_kategori: formData.namaKategori,
       idgudang: formData.idgudang,  // Perbaikan di sini
       deskripsi: formData.deskripsi
     };
 
+    console.log('Payload to be sent:', payload);
+
     try {
       if (isEditMode && editId) {
         await axios.put(`/kategori/${editId}`, payload);
         alert('Kategori berhasil diupdate!');
       } else {
-        await axios.post('/kategori', payload);
+        console.log('Sending payload:', payload);
+        const response = await axios.post('/kategori', payload);
+        console.log('Server response:', response.data);
         alert('Kategori berhasil ditambahkan!');
       }
-
       fetchKategori();
       handleCloseModal();
     } catch (error) {
       console.error('Gagal menyimpan kategori:', error);
-      alert('Terjadi kesalahan saat menyimpan kategori.');
+      if (error.response) {
+        console.error('Response data:', error.response.data);
+        console.error('Response status:', error.response.status);
+        alert(`Terjadi kesalahan: ${error.response.data.message || 'Unknown error'}`);
+      } else {
+        alert('Terjadi kesalahan saat menyimpan kategori.');
+      }
     }
   };
 

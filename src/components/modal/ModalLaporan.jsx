@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-// Perbaikan: path CSS harus sesuai dengan struktur folder
+
 import '../../components/Laporan.css';
 
 const ModalLaporan = ({ isOpen, onClose }) => {
