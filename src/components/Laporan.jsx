@@ -1,19 +1,21 @@
-import React, { useState, useEffect } from 'react';
-import './Laporan.css';
-import Sidebar from './sidebar';
-import ModalBarangMasuk from '../components/modal/ModalBarangMasuk';
-import ModalBarangKeluar from '../components/modal/ModalBarangKeluar';
+import React, { useState, useEffect } from "react";
+import "./Laporan.css";
+import Sidebar from "./sidebar";
+import ModalDownload from "../components/modal/ModalDownload";
+import ModalBarangMasuk from "../components/modal/ModalBarangMasuk";
+import ModalBarangKeluar from "../components/modal/ModalBarangKeluar";
 
-import axios from '../api/axios';
-import { PlusCircle, Download, Trash2 } from 'lucide-react';
+import axios from "../api/axios";
+import { PlusCircle, Download, Trash2 } from "lucide-react";
 
 const Laporan = () => {
-  const [activeTab, setActiveTab] = useState('masuk');
+  const [activeTab, setActiveTab] = useState("masuk");
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const [isDownloadModalOpen, setIsDownloadModalOpen] = useState(false);
-  const [filters, setFilters] = useState(false);
+  const [isPrintPreviewOpen, setIsPrintPreviewOpen] = useState(false);
+  const [editItem, setEditItem] = useState(null);
+  // const [filters, setFilters] = useState(false);
   const [loading, setLoading] = useState(false);
-  const [error, setError] = useState('');
+  const [error, setError] = useState("");
   const [dataBarangMasuk, setDataBarangMasuk] = useState([]);
   const [dataBarangKeluar, setDataBarangKeluar] = useState([]);
   const [currentPage, setCurrentPage] = useState(1);
@@ -26,10 +28,10 @@ const Laporan = () => {
   const fetchData = async () => {
     setLoading(true);
     try {
-      if (activeTab === 'masuk') {
+      if (activeTab === "masuk") {
         const response = await axios.get(`/barang-masuk?page=${currentPage}`);
         if (response.data.success) {
-          console.log('Barang masuk data:', response.data);
+          console.log("Barang masuk data:", response.data);
           setDataBarangMasuk(response.data.data);
           setTotalPages(response.data.last_page || 1);
         } else {
@@ -46,34 +48,35 @@ const Laporan = () => {
           setTotalPages(1);
         }
       }
-      setError('');
+      setError("");
     } catch (err) {
-      console.error('Error fetching data:', err);
-      setError('Failed to load data. Please try again.');
+      console.error("Error fetching data:", err);
+      setError("Failed to load data. Please try again.");
     } finally {
       setLoading(false);
     }
   };
 
-  const currentData = activeTab === 'masuk' ? dataBarangMasuk : dataBarangKeluar;
+  const currentData =
+    activeTab === "masuk" ? dataBarangMasuk : dataBarangKeluar;
 
   const handleDelete = async (id) => {
-    if (!window.confirm('Apakah kamu yakin ingin menghapus item ini?')) return;
+    if (!window.confirm("Apakah kamu yakin ingin menghapus item ini?")) return;
 
     setLoading(true);
     try {
-      if (activeTab === 'masuk') {
+      if (activeTab === "masuk") {
         await axios.delete(`/barang-masuk/${id}`);
       } else {
         await axios.delete(`/barang-keluar/${id}`);
       }
       fetchData(); // Refresh the data
     } catch (err) {
-      console.error('Error Hapus Data:', err);
+      console.error("Error Hapus Data:", err);
       if (err.response && err.response.data && err.response.data.message) {
         setError(err.response.data.message);
       } else {
-        setError('Gagal Hapus item, Tolong Coba Lagi.');
+        setError("Gagal Hapus item, Tolong Coba Lagi.");
       }
     } finally {
       setLoading(false);
@@ -92,6 +95,11 @@ const Laporan = () => {
     }
   };
 
+  const handleEdit = (item) => {
+    setEditItem(item); // Simpan data yang mau diedit
+    setIsModalOpen(true); // Buka modal form
+  };
+
   return (
     <div className="laporan-container">
       <Sidebar />
@@ -99,18 +107,18 @@ const Laporan = () => {
         <div className="content-header">
           <div className="tabs">
             <button
-              className={`tab ${activeTab === 'masuk' ? 'active' : ''}`}
+              className={`tab ${activeTab === "masuk" ? "active" : ""}`}
               onClick={() => {
-                setActiveTab('masuk');
+                setActiveTab("masuk");
                 setCurrentPage(1);
               }}
             >
               Barang Masuk
             </button>
             <button
-              className={`tab ${activeTab === 'keluar' ? 'active' : ''}`}
+              className={`tab ${activeTab === "keluar" ? "active" : ""}`}
               onClick={() => {
-                setActiveTab('keluar');
+                setActiveTab("keluar");
                 setCurrentPage(1);
               }}
             >
@@ -124,15 +132,17 @@ const Laporan = () => {
               disabled={loading}
             >
               <PlusCircle size={16} />
-              {activeTab === 'masuk' ? 'Tambah Barang Masuk' : 'Tambah Barang Keluar'}
+              {activeTab === "masuk"
+                ? "Tambah Barang Masuk"
+                : "Tambah Barang Keluar"}
             </button>
             <button
               className="filters-btn"
-              onClick={() => setIsDownloadModalOpen(true)}
+              onClick={() => setIsPrintPreviewOpen(true)}
               disabled={loading}
             >
               <Download size={16} />
-              Download
+              Preview / Cetak
             </button>
           </div>
         </div>
@@ -146,7 +156,7 @@ const Laporan = () => {
             <table className="data-table">
               <thead>
                 <tr>
-                  {activeTab === 'masuk' ? (
+                  {activeTab === "masuk" ? (
                     <>
                       <th>Nama Produk</th>
                       <th>Stock Masuk</th>
@@ -172,16 +182,31 @@ const Laporan = () => {
               <tbody>
                 {currentData.map((item) => (
                   <tr key={item.id}>
-                    {activeTab === 'masuk' ? (
+                    {activeTab === "masuk" ? (
                       <>
-                        <td>{item.nama_produk || item.produk?.nama || '—'}</td>
+                        <td>{item.nama_produk || item.produk?.nama || "—"}</td>
                         <td>{item.stock_masuk}</td>
-                        <td>{item.tanggal_masuk ? new Date(item.tanggal_masuk).toLocaleDateString() : '—'}</td>
-                        <td>{item.nama_gudang || item.produk?.kategori?.gudang?.nama_gudang || '—'}</td>
-                        <td>{item.nama_kategori || item.produk?.kategori?.nama_kategori || '—'}</td>
-                        <td>{item.keterangan || '—'}</td>
+                        <td>
+                          {item.tanggal_masuk
+                            ? new Date(item.tanggal_masuk).toLocaleDateString()
+                            : "—"}
+                        </td>
+                        <td>
+                          {item.product?.kategori?.gudang?.nama_gudang || "—"}
+                        </td>
+                        <td>{item.product?.kategori?.nama_kategori || "—"}</td>
+
+                        <td>{item.keterangan || "—"}</td>
                         <td>
                           <div className="action-buttons">
+                            <button
+                              className="action-btn edit-btn"
+                              onClick={() => handleEdit(item)}
+                              title="Edit"
+                              disabled={loading}
+                            >
+                              ✏️
+                            </button>
                             <button
                               className="action-btn delete-btn"
                               onClick={() => handleDelete(item.id)}
@@ -195,14 +220,29 @@ const Laporan = () => {
                       </>
                     ) : (
                       <>
-                        <td>{item.nama_produk || item.produk?.nama || '—'}</td>
+                        <td>{item.nama_produk || item.produk?.nama || "—"}</td>
                         <td>{item.stock_keluar}</td>
-                        <td>{item.tanggal_keluar ? new Date(item.tanggal_keluar).toLocaleDateString() : '—'}</td>
-                        <td>{item.alasan_keluar || '—'}</td>
-                        <td>{item.nama_gudang || item.produk?.kategori?.gudang?.nama_gudang || '—'}</td>
-                        <td>{item.nama_kategori || item.produk?.kategori?.nama_kategori || '—'}</td>
+                        <td>
+                          {item.tanggal_keluar
+                            ? new Date(item.tanggal_keluar).toLocaleDateString()
+                            : "—"}
+                        </td>
+                        <td>{item.alasan_keluar || "—"}</td>
+                        <td>
+                          {item.product?.kategori?.gudang?.nama_gudang || "—"}
+                        </td>
+                        <td>{item.product?.kategori?.nama_kategori || "—"}</td>
+
                         <td>
                           <div className="action-buttons">
+                            <button
+                              className="action-btn edit-btn"
+                              onClick={() => handleEdit(item)}
+                              title="Edit"
+                              disabled={loading}
+                            >
+                              ✏️
+                            </button>
                             <button
                               className="action-btn delete-btn"
                               onClick={() => handleDelete(item.id)}
@@ -223,39 +263,130 @@ const Laporan = () => {
         </div>
 
         <div className="pagination">
-          <button 
-            className="pagination-btn" 
-            onClick={handlePrevPage} 
+          <button
+            className="pagination-btn"
+            onClick={handlePrevPage}
             disabled={currentPage === 1 || loading}
           >
             Previous
           </button>
-          <span className="pagination-info">Page {currentPage} of {totalPages}</span>
-          <button 
-            className="pagination-btn" 
-            onClick={handleNextPage} 
+          <span className="pagination-info">
+            Page {currentPage} of {totalPages}
+          </span>
+          <button
+            className="pagination-btn"
+            onClick={handleNextPage}
             disabled={currentPage === totalPages || loading}
           >
             Next
           </button>
+          <div id="print-section" style={{ display: "none" }}>
+            <table>
+              <thead>
+                <tr>
+                  {activeTab === "masuk" ? (
+                    <>
+                      <th>Nama Produk</th>
+                      <th>Stock Masuk</th>
+                      <th>Tanggal Masuk</th>
+                      <th>Gudang</th>
+                      <th>Kategori</th>
+                      <th>Keterangan</th>
+                    </>
+                  ) : (
+                    <>
+                      <th>Nama Produk</th>
+                      <th>Stock Keluar</th>
+                      <th>Tanggal Keluar</th>
+                      <th>Alasan Keluar</th>
+                      <th>Gudang</th>
+                      <th>Kategori</th>
+                    </>
+                  )}
+                </tr>
+              </thead>
+              <tbody>
+                {currentData.map((item) => (
+                  <tr key={item.id}>
+                    {activeTab === "masuk" ? (
+                      <>
+                        <td>{item.nama_produk || item.produk?.nama || "—"}</td>
+                        <td>{item.stock_masuk}</td>
+                        <td>
+                          {item.tanggal_masuk
+                            ? new Date(item.tanggal_masuk).toLocaleDateString()
+                            : "—"}
+                        </td>
+                        <td>
+                          {item.nama_gudang ||
+                            item.produk?.kategori?.gudang?.nama_gudang ||
+                            "—"}
+                        </td>
+                        <td>
+                          {item.nama_kategori ||
+                            item.produk?.kategori?.nama_kategori ||
+                            "—"}
+                        </td>
+                        <td>{item.keterangan || "—"}</td>
+                      </>
+                    ) : (
+                      <>
+                        <td>{item.nama_produk || item.produk?.nama || "—"}</td>
+                        <td>{item.stock_keluar}</td>
+                        <td>
+                          {item.tanggal_keluar
+                            ? new Date(item.tanggal_keluar).toLocaleDateString()
+                            : "—"}
+                        </td>
+                        <td>{item.alasan_keluar || "—"}</td>
+                        <td>
+                          {item.nama_gudang ||
+                            item.produk?.kategori?.gudang?.nama_gudang ||
+                            "—"}
+                        </td>
+                        <td>
+                          {item.nama_kategori ||
+                            item.produk?.kategori?.nama_kategori ||
+                            "—"}
+                        </td>
+                      </>
+                    )}
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
         </div>
       </div>
 
-      {activeTab === 'masuk' ? (
-        <ModalBarangMasuk 
+      {activeTab === "masuk" ? (
+        <ModalBarangMasuk
           isOpen={isModalOpen}
-          onClose={() => setIsModalOpen(false)}
+          onClose={() => {
+            setIsModalOpen(false);
+            setEditItem(null); // reset setelah close
+          }}
           refreshData={fetchData}
+          editItem={editItem} // ⬅️
         />
       ) : (
-        <ModalBarangKeluar 
-          isOpen={isModalOpen} 
-          onClose={() => setIsModalOpen(false)}
+        <ModalBarangKeluar
+          isOpen={isModalOpen}
+          onClose={() => {
+            setIsModalOpen(false);
+            setEditItem(null); // reset setelah close
+          }}
           refreshData={fetchData}
+          editItem={editItem} // ⬅️
         />
       )}
 
-
+      <ModalDownload
+        isOpen={isPrintPreviewOpen}
+        onClose={() => setIsPrintPreviewOpen(false)}
+        data={currentData}
+        activeTab={activeTab}
+      />
     </div>
   );
 };

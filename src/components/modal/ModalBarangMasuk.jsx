@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import '../../components/Laporan.css';
 import axios from '../../api/axios';
 
-const ModalBarangMasuk = ({ isOpen, onClose, refreshData }) => {
+const ModalBarangMasuk = ({ isOpen, onClose, refreshData, editItem }) => {
   const [products, setProducts] = useState([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
@@ -12,32 +12,49 @@ const ModalBarangMasuk = ({ isOpen, onClose, refreshData }) => {
     tanggal_masuk: new Date().toISOString().slice(0, 10)
   });
 
+  // Fetch produk saat modal dibuka
   useEffect(() => {
     if (isOpen) {
       fetchProducts();
+      if (editItem) {
+        setFormData({
+          idproduk: editItem.idproduk?.toString() || '',
+          stock_masuk: editItem.stock_masuk || '',
+          tanggal_masuk: editItem.tanggal_masuk?.slice(0, 10) || new Date().toISOString().slice(0, 10)
+        });
+      } else {
+        resetForm();
+      }
     }
-  }, [isOpen]);
+  }, [isOpen, editItem]);
 
   const fetchProducts = async () => {
     setLoading(true);
     try {
-      const response = await axios.get('/product');
-      if (response.data.success) {
-        console.log('Products data:', response.data.data);
-        setProducts(response.data.data);
+      const res = await axios.get('/product');
+      if (res.data.success) {
+        setProducts(res.data.data);
       } else {
         setProducts([]);
       }
       setError('');
     } catch (err) {
-      console.error('Error fetching products:', err);
-      setError('Failed to load products. Please try again.');
+      console.error('Error:', err);
+      setError('Gagal memuat produk.');
     } finally {
       setLoading(false);
     }
   };
 
-  const handleInputChange = (e) => {
+  const resetForm = () => {
+    setFormData({
+      idproduk: '',
+      stock_masuk: '',
+      tanggal_masuk: new Date().toISOString().slice(0, 10)
+    });
+  };
+
+  const handleChange = (e) => {
     const { name, value } = e.target;
     setFormData(prev => ({
       ...prev,
@@ -49,7 +66,7 @@ const ModalBarangMasuk = ({ isOpen, onClose, refreshData }) => {
     e.preventDefault();
     setLoading(true);
     try {
-      const selectedProduct = products.find(product => product.id.toString() === formData.idproduk.toString());
+      const selectedProduct = products.find(p => p.id.toString() === formData.idproduk.toString());
 
       const dataToSubmit = {
         ...formData,
@@ -58,21 +75,18 @@ const ModalBarangMasuk = ({ isOpen, onClose, refreshData }) => {
         warehouse_name: selectedProduct?.kategori?.gudang?.nama_gudang
       };
 
-      await axios.post('/barang-masuk', dataToSubmit);
+      if (editItem) {
+        await axios.put(`/barang-masuk/${editItem.id}`, dataToSubmit);
+      } else {
+        await axios.post('/barang-masuk', dataToSubmit);
+      }
+
       onClose();
       if (refreshData) refreshData();
-      setFormData({
-        idproduk: '',
-        stock_masuk: '',
-        tanggal_masuk: new Date().toISOString().slice(0, 10)
-      });
+      resetForm();
     } catch (err) {
-      console.error('Gagal Menambahkan Barang Masuk:', err);
-      if (err.response && err.response.data && err.response.data.message) {
-        setError(err.response.data.message);
-      } else {
-        setError('Gagal Menambah Produk');
-      }
+      console.error('Error submit:', err);
+      setError(err?.response?.data?.message || 'Gagal menyimpan data.');
     } finally {
       setLoading(false);
     }
@@ -80,11 +94,7 @@ const ModalBarangMasuk = ({ isOpen, onClose, refreshData }) => {
 
   const handleCancel = () => {
     onClose();
-    setFormData({
-      idproduk: '',
-      stock_masuk: '',
-      tanggal_masuk: new Date().toISOString().slice(0, 10)
-    });
+    resetForm();
   };
 
   if (!isOpen) return null;
@@ -93,10 +103,8 @@ const ModalBarangMasuk = ({ isOpen, onClose, refreshData }) => {
     <div className="modal-overlay">
       <div className="modal-container">
         <div className="modal-header">
-          <h2>Tambah Barang Masuk</h2>
-          <button className="modal-close" onClick={onClose}>
-            ✕
-          </button>
+          <h2>{editItem ? 'Edit Barang Masuk' : 'Tambah Barang Masuk'}</h2>
+          <button className="modal-close" onClick={onClose}>✕</button>
         </div>
 
         {error && <div className="error-message">{error}</div>}
@@ -109,15 +117,13 @@ const ModalBarangMasuk = ({ isOpen, onClose, refreshData }) => {
                 id="idproduk"
                 name="idproduk"
                 value={formData.idproduk}
-                onChange={handleInputChange}
+                onChange={handleChange}
                 required
-                disabled={loading}
+                disabled={loading || !!editItem}
               >
                 <option value="">Pilih produk</option>
-                {products.map(product => (
-                  <option key={product.id} value={product.id}>
-                    {product.nama}
-                  </option>
+                {products.map(p => (
+                  <option key={p.id} value={p.id}>{p.nama}</option>
                 ))}
               </select>
             </div>
@@ -129,10 +135,10 @@ const ModalBarangMasuk = ({ isOpen, onClose, refreshData }) => {
                 id="stock_masuk"
                 name="stock_masuk"
                 value={formData.stock_masuk}
-                onChange={handleInputChange}
+                onChange={handleChange}
                 required
-                placeholder="0"
                 min="1"
+                placeholder="0"
                 disabled={loading}
               />
             </div>
@@ -146,7 +152,7 @@ const ModalBarangMasuk = ({ isOpen, onClose, refreshData }) => {
                 id="tanggal_masuk"
                 name="tanggal_masuk"
                 value={formData.tanggal_masuk}
-                onChange={handleInputChange}
+                onChange={handleChange}
                 required
                 disabled={loading}
               />
@@ -154,20 +160,9 @@ const ModalBarangMasuk = ({ isOpen, onClose, refreshData }) => {
           </div>
 
           <div className="modal-actions">
-            <button 
-              type="button" 
-              className="btn-cancel"
-              onClick={handleCancel}
-              disabled={loading}
-            >
-              Cancel
-            </button>
-            <button 
-              type="submit" 
-              className="btn-submit"
-              disabled={loading}
-            >
-              {loading ? 'Processing...' : 'Tambah Barang Masuk'}
+            <button type="button" className="btn-cancel" onClick={handleCancel} disabled={loading}>Cancel</button>
+            <button type="submit" className="btn-submit" disabled={loading}>
+              {loading ? 'Processing...' : editItem ? 'Update Barang Masuk' : 'Tambah Barang Masuk'}
             </button>
           </div>
         </form>
