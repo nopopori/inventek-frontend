@@ -231,7 +231,7 @@ const Product = () => {
         </div>
 
         {/* Table */}
-        <div className="table-container">
+        <div className="table-container-scrollable">
           <table className="data-table">
             <thead>
               <tr>
