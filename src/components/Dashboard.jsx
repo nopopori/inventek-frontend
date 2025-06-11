@@ -1,86 +1,73 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { ChevronRight, Package, Users, Home, Menu, X, LogOut } from 'lucide-react';
 import './Dashboard.css';
 import Sidebar from './sidebar';
+import axios from '../api/axios';
+
 const Dashboard = () => {
   const [sidebarOpen, setSidebarOpen] = useState(false);
+  const [productData, setProductData] = useState([]);
+  const [gudangList, setGudangList] = useState([]);
+  const [userData, setUserList] = useState([]);
   const [currentPage, setCurrentPage] = useState(1);
+  const [customers, setCustomers] = useState([]);
+
+
+   useEffect(() => {
+      fetchProducts();
+      fetchGudang();
+      fetchUser();
+    }, []);
   
-  // Sample customer data
-  const customers = [
-    {
-      id: 1,
-      name: "Jane Cooper",
-      company: "Microsoft",
-      phone: "(225) 555-0118",
-      email: "jane@microsoft.com",
-      country: "United States",
-      status: "Active"
-    },
-    {
-      id: 2,
-      name: "Floyd Miles",
-      company: "Yahoo",
-      phone: "(205) 555-0100",
-      email: "floyd@yahoo.com",
-      country: "Kiribati",
-      status: "Inactive"
-    },
-    {
-      id: 3,
-      name: "Ronald Richards",
-      company: "Adobe",
-      phone: "(302) 555-0107",
-      email: "ronald@adobe.com",
-      country: "Israel",
-      status: "Inactive"
-    },
-    {
-      id: 4,
-      name: "Marvin McKinney",
-      company: "Tesla",
-      phone: "(252) 555-0126",
-      email: "marvin@tesla.com",
-      country: "Iran",
-      status: "Active"
-    },
-    {
-      id: 5,
-      name: "Jerome Bell",
-      company: "Google",
-      phone: "(629) 555-0129",
-      email: "jerome@google.com",
-      country: "Réunion",
-      status: "Active"
-    },
-    {
-      id: 6,
-      name: "Kathryn Murphy",
-      company: "Microsoft",
-      phone: "(406) 555-0120",
-      email: "kathryn@microsoft.com",
-      country: "Curaçao",
-      status: "Active"
-    },
-    {
-      id: 7,
-      name: "Jacob Jones",
-      company: "Yahoo",
-      phone: "(208) 555-0112",
-      email: "jacob@yahoo.com",
-      country: "Brazil",
-      status: "Active"
-    },
-    {
-      id: 8,
-      name: "Kristin Watson",
-      company: "Facebook",
-      phone: "(704) 555-0127",
-      email: "kristin@facebook.com",
-      country: "Åland Islands",
-      status: "Inactive"
+
+  const fetchProducts = async () => {
+      try {
+        const res = await axios.get('/product');
+        if (res.data.success) {
+          setProductData(res.data.data);
+        }
+      } catch (error) {
+        console.error('Error fetching products:', error);
+      }
+    };
+
+    const fetchUser = async () => {
+      try{
+        const res = await axios.get('/user');
+        if(res.data.success){
+          setUserList(res.data.data);
+        }
+      }catch(error){
+        console.error('Error fetching products:', error);
+      }
     }
-  ];
+  
+
+  const fetchGudang = async () => {
+    try {
+        const response = await axios.get('/gudang');
+        const data = response.data;
+  
+        if (Array.isArray(data)) {
+          setGudangList(data);
+        } else if (Array.isArray(data.data)) {
+          setGudangList(data.data);
+        } else {
+          console.error('Format data gudang tidak valid:', data);
+          setGudangList([]);
+        }
+      } catch (error) {
+        console.error('Gagal memuat data gudang:', error);
+      }
+    };
+
+    // Overview stats
+  const overviewStats = {
+    totalProducts: productData.length,
+    totalGudang: gudangList.length,
+    totalUsers: userData.length,
+  };
+
 
   const menuItems = [
     { icon: Home, label: "Dashboard", active: true },
@@ -103,7 +90,7 @@ const Dashboard = () => {
     </span>
   );
 
-  const StatCard = ({ icon: Icon, value, iconBg }) => (
+  const StatCard = ({ icon: Icon, value, iconBg, label }) => (
     <div className="stat-card">
       <div className={`stat-icon ${iconBg}`}>
         <Icon size={24} />
@@ -111,11 +98,13 @@ const Dashboard = () => {
       <div className="stat-value">
         {value.toLocaleString()}
       </div>
+      <div className="stat-label">{label}</div>
     </div>
   );
 
   return (
     <div className="dashboard-container">
+
       {/* Sidebar */}
       <Sidebar /> 
 
@@ -138,73 +127,22 @@ const Dashboard = () => {
           <div className="stats-grid">
             <StatCard 
               icon={Package} 
-              value={5423} 
+              value={overviewStats.totalProducts} 
               iconBg="blue"
+              label="Produk"
             />
             <StatCard 
               icon={Users} 
-              value={1893} 
+              value={overviewStats.totalUsers} 
               iconBg="green"
+              label="Users"
             />
             <StatCard 
               icon={Home} 
-              value={189} 
+              value={overviewStats.totalGudang} 
               iconBg="purple"
+              label="Gudang"
             />
-          </div>
-
-          {/* Customers Table */}
-          <div className="table-container">
-            <div className="table-header">
-              <h2>All Customers</h2>
-              <p className="table-subtitle">Active Members</p>
-            </div>
-            
-            <div className="table-wrapper">
-              <table className="customers-table">
-                <thead>
-                  <tr>
-                    <th>Customer Name</th>
-                    <th>Company</th>
-                    <th>Phone Number</th>
-                    <th>Email</th>
-                    <th>Country</th>
-                    <th>Status</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {customers.map((customer) => (
-                    <tr key={customer.id}>
-                      <td className="customer-name">{customer.name}</td>
-                      <td>{customer.company}</td>
-                      <td>{customer.phone}</td>
-                      <td>{customer.email}</td>
-                      <td>{customer.country}</td>
-                      <td>
-                        <StatusBadge status={customer.status} />
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
-
-            {/* Pagination */}
-            <div className="pagination">
-              <div className="pagination-info">
-                Showing data 1 to 8 of 256K entries
-              </div>
-              <div className="pagination-controls">
-                <button>&lt;</button>
-                <button className="active">1</button>
-                <button>2</button>
-                <button>3</button>
-                <button>4</button>
-                <span>...</span>
-                <button>40</button>
-                <button>&gt;</button>
-              </div>
-            </div>
           </div>
         </div>
       </div>
@@ -214,5 +152,7 @@ const Dashboard = () => {
     </div>
   );
 };
+
+
 
 export default Dashboard;

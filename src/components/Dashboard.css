@@ -207,6 +207,14 @@
   background-color: #8b5cf6;
 }
 
+.stat-label {
+  font-size: 1rem;
+  color: black;
+  font-weight: bold;
+  margin-top: 4px;
+  text-align: center;
+}
+
 .stat-value {
   font-size: 24px;
   font-weight: bold;
