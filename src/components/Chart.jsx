@@ -54,4 +54,8 @@ const ChartSection = () => {
     );
 };
 
+<<<<<<< HEAD
 export default ChartSection;
+=======
+export default ChartSection;
+>>>>>>> 0d1d57f44bcf471b2173c8f04e69a2e574892f95
