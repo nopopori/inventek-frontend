@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import '../../components/Laporan.css';
 import axios from '../../api/axios';
 
-const ModalBarangKeluar = ({ isOpen, onClose, refreshData }) => {
+const ModalBarangKeluar = ({ isOpen, onClose, refreshData, editItem }) => {
   const [products, setProducts] = useState([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
@@ -16,8 +16,16 @@ const ModalBarangKeluar = ({ isOpen, onClose, refreshData }) => {
   useEffect(() => {
     if (isOpen) {
       fetchProducts();
+      if (editItem) {
+        setFormData({
+          idproduk: editItem.idproduk || '',
+          stock_keluar: editItem.stock_keluar || '',
+          tanggal_keluar: editItem.tanggal_keluar || new Date().toISOString().slice(0, 10),
+          alasan_keluar: editItem.alasan_keluar || ''
+        });
+      }
     }
-  }, [isOpen]);
+  }, [isOpen, editItem]);
 
   const fetchProducts = async () => {
     setLoading(true);
@@ -30,6 +38,7 @@ const ModalBarangKeluar = ({ isOpen, onClose, refreshData }) => {
       }
       setError('');
     } catch (err) {
+       console.error(err);
       setError('Gagal ambil data.');
     } finally {
       setLoading(false);
@@ -55,7 +64,13 @@ const ModalBarangKeluar = ({ isOpen, onClose, refreshData }) => {
         category_name: selectedProduct?.kategori?.nama_kategori,
         warehouse_name: selectedProduct?.kategori?.gudang?.nama_gudang
       };
-      await axios.post('/barang-keluar', dataToSubmit);
+
+      if (editItem) {
+        await axios.put(`/barang-keluar/${editItem.id}`, dataToSubmit);
+      } else {
+        await axios.post('/barang-keluar', dataToSubmit);
+      }
+
       onClose();
       if (refreshData) refreshData();
       setFormData({
@@ -91,10 +106,8 @@ const ModalBarangKeluar = ({ isOpen, onClose, refreshData }) => {
     <div className="modal-overlay">
       <div className="modal-container">
         <div className="modal-header">
-          <h2>Tambah Barang Keluar</h2>
-          <button className="modal-close" onClick={onClose}>
-            ✕
-          </button>
+          <h2>{editItem ? 'Edit Barang Keluar' : 'Tambah Barang Keluar'}</h2>
+          <button className="modal-close" onClick={onClose}>✕</button>
         </div>
 
         {error && <div className="error-message">{error}</div>}
@@ -109,7 +122,7 @@ const ModalBarangKeluar = ({ isOpen, onClose, refreshData }) => {
                 value={formData.idproduk}
                 onChange={handleInputChange}
                 required
-                disabled={loading}
+                disabled={loading || !!editItem}
               >
                 <option value="">Pilih produk</option>
                 {products.map(product => (
@@ -179,7 +192,7 @@ const ModalBarangKeluar = ({ isOpen, onClose, refreshData }) => {
               className="btn-submit"
               disabled={loading}
             >
-              {loading ? 'Processing...' : 'Tambah Barang Keluar'}
+              {loading ? 'Processing...' : (editItem ? 'Update Barang Keluar' : 'Tambah Barang Keluar')}
             </button>
           </div>
         </form>
