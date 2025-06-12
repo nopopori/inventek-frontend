@@ -272,13 +272,9 @@ const Product = () => {
               ))}
               {productData.length === 0 && (
                 <tr>
-<<<<<<< HEAD
-                  <td colSpan="7" style={{ textAlign: 'center' }}>Tidak ada produk di temukan</td>
-=======
                   <td colSpan="7" style={{ textAlign: "center" }}>
                     No products found
                   </td>
->>>>>>> RafliFrontend
                 </tr>
               )}
             </tbody>
