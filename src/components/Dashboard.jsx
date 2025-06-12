@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { ChevronRight, Package, Users, Home, Menu, X, LogOut } from 'lucide-react';
 import './Dashboard.css';
+import ChartSection from './Chart.jsx';
 import Sidebar from './sidebar';
 import axios from '../api/axios';
 
@@ -143,6 +144,11 @@ const Dashboard = () => {
               iconBg="purple"
               label="Gudang"
             />
+          </div>
+
+          {/* Chart Section */}
+          <div style={{ width: '100%', maxWidth: 600, margin: '0 auto', marginTop: 24 }}>
+            <ChartSection />
           </div>
         </div>
       </div>

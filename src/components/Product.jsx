@@ -323,7 +323,7 @@ if (isEditMode && editId) {
               ))}
               {productData.length === 0 && (
                 <tr>
-                  <td colSpan="7" style={{ textAlign: 'center' }}>No products found</td>
+                  <td colSpan="7" style={{ textAlign: 'center' }}>Tidak ada produk di temukan</td>
                 </tr>
               )}
             </tbody>
