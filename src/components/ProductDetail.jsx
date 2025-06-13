@@ -1,3 +1,4 @@
+
 import React from 'react';
 import Sidebar from './sidebar';
 import './Product.css';
@@ -13,7 +14,7 @@ const ProductDetail = ({ product, onBack, onEdit }) => {
           <button className="back-btn" onClick={onBack}>
             ← Kembali
           </button>
-          <button className="edit-product-btn" onClick={() => onEdit(product.nama_produk)}>
+          <button className="edit-product-btn" onClick={() => onEdit(product)}>
             ✏️ Edit
           </button>
         </div>
