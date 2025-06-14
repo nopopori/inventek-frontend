@@ -1,90 +1,144 @@
-import React, { useState, useEffect } from 'react';
-import '../../components/Laporan.css';
-import axios from '../../api/axios';
+import React, { useEffect, useState } from "react";
+import "../../components/Laporan.css";
+import axios from "../../api/axios";
 
 const ModalBarangKeluar = ({ isOpen, onClose, refreshData, editItem }) => {
   const [products, setProducts] = useState([]);
+  const [gudangOptions, setGudangOptions] = useState([]);
+  const [kategoriOptions, setKategoriOptions] = useState([]);
   const [loading, setLoading] = useState(false);
-  const [error, setError] = useState('');
-  const [formData, setFormData] = useState({
-    idproduk: '',
-    stock_keluar: '',
+  const [error, setError] = useState("");
+
+  const initialForm = {
+    gudang_id: "",
+    kategori_id: "",
+    idproduk: "",
+    stock_keluar: "",
     tanggal_keluar: new Date().toISOString().slice(0, 10),
-    alasan_keluar: ''
-  });
+    alasan_keluar: "",
+  };
+
+  const [formData, setFormData] = useState(initialForm);
+
+  const getSafe = (path, fallback = "") => path ?? fallback;
+
+  const initializeFormData = () => {
+    if (editItem) {
+      const product = editItem.product || {};
+      const kategori = product.kategori || {};
+      const gudang = kategori.gudang || {};
+
+      setFormData({
+        gudang_id: getSafe(gudang.id?.toString()),
+        kategori_id: getSafe(kategori.idkategori?.toString()),
+        idproduk: getSafe(product.id?.toString()),
+        stock_keluar: getSafe(editItem.stock_keluar),
+        tanggal_keluar:
+          getSafe(editItem.tanggal_keluar)?.slice(0, 10) ||
+          new Date().toISOString().slice(0, 10),
+        alasan_keluar: getSafe(editItem.alasan_keluar || ""),
+      });
+    } else {
+      setFormData(initialForm);
+    }
+  };
 
   useEffect(() => {
     if (isOpen) {
       fetchProducts();
-      if (editItem) {
-        setFormData({
-          idproduk: editItem.idproduk || '',
-          stock_keluar: editItem.stock_keluar || '',
-          tanggal_keluar: editItem.tanggal_keluar || new Date().toISOString().slice(0, 10),
-          alasan_keluar: editItem.alasan_keluar || ''
-        });
-      }
+      initializeFormData();
     }
   }, [isOpen, editItem]);
 
   const fetchProducts = async () => {
     setLoading(true);
     try {
-      const response = await axios.get('/product');
-      if (response.data.success) {
-        setProducts(response.data.data);
+      const res = await axios.get("/product");
+      if (res.data.success) {
+        const list = res.data.data;
+        setProducts(list);
+        extractOptions(list);
       } else {
         setProducts([]);
       }
-      setError('');
+      setError("");
     } catch (err) {
-       console.error(err);
-      setError('Gagal ambil data.');
+      console.error("Error:", err);
+      setError("Gagal memuat produk.");
     } finally {
       setLoading(false);
     }
   };
 
-  const handleInputChange = (e) => {
+  const extractOptions = (productList) => {
+    const uniqueGudang = [];
+    const uniqueKategori = [];
+
+    productList.forEach((p) => {
+      const gudang = p.kategori?.gudang;
+      const kategori = p.kategori;
+
+      if (gudang && !uniqueGudang.some((g) => g.id === gudang.id)) {
+        uniqueGudang.push(gudang);
+      }
+
+      if (
+        kategori &&
+        !uniqueKategori.some((k) => k.idkategori === kategori.idkategori)
+      ) {
+        uniqueKategori.push({
+          ...kategori,
+          gudang_id:
+            kategori.gudang_id || kategori.idgudang || kategori.gudang?.id,
+        });
+      }
+    });
+
+    setGudangOptions(uniqueGudang);
+    setKategoriOptions(uniqueKategori);
+  };
+
+  const handleChange = (e) => {
     const { name, value } = e.target;
-    setFormData(prev => ({
-      ...prev,
-      [name]: value
-    }));
+    const updated = { ...formData, [name]: value };
+
+    if (name === "gudang_id") {
+      updated.kategori_id = "";
+      updated.idproduk = "";
+    } else if (name === "kategori_id") {
+      updated.idproduk = "";
+    }
+
+    setFormData(updated);
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     setLoading(true);
     try {
-      const selectedProduct = products.find(product => product.id.toString() === formData.idproduk.toString());
+      const selectedProduct = products.find(
+        (p) => p.id.toString() === formData.idproduk.toString()
+      );
+
       const dataToSubmit = {
         ...formData,
         product_name: selectedProduct?.nama,
         category_name: selectedProduct?.kategori?.nama_kategori,
-        warehouse_name: selectedProduct?.kategori?.gudang?.nama_gudang
+        warehouse_name: selectedProduct?.kategori?.gudang?.nama_gudang,
       };
 
       if (editItem) {
         await axios.put(`/barang-keluar/${editItem.id}`, dataToSubmit);
       } else {
-        await axios.post('/barang-keluar', dataToSubmit);
+        await axios.post("/barang-keluar", dataToSubmit);
       }
 
       onClose();
       if (refreshData) refreshData();
-      setFormData({
-        idproduk: '',
-        stock_keluar: '',
-        tanggal_keluar: new Date().toISOString().slice(0, 10),
-        alasan_keluar: ''
-      });
+      setFormData(initialForm);
     } catch (err) {
-      if (err.response && err.response.data && err.response.data.message) {
-        setError(err.response.data.message);
-      } else {
-        setError('Gagal Menambah Barang Keluar');
-      }
+      console.error("Error submit:", err);
+      setError(err?.response?.data?.message || "Gagal menyimpan data.");
     } finally {
       setLoading(false);
     }
@@ -92,13 +146,18 @@ const ModalBarangKeluar = ({ isOpen, onClose, refreshData, editItem }) => {
 
   const handleCancel = () => {
     onClose();
-    setFormData({
-      idproduk: '',
-      stock_keluar: '',
-      tanggal_keluar: new Date().toISOString().slice(0, 10),
-      alasan_keluar: ''
-    });
+    setFormData(initialForm);
   };
+
+  const filteredKategori = kategoriOptions.filter(
+    (k) => k.gudang_id?.toString() === formData.gudang_id
+  );
+
+  const filteredProduk = products.filter(
+    (produk) =>
+      produk.idkategori == formData.kategori_id &&
+      produk.idgudang == formData.gudang_id
+  );
 
   if (!isOpen) return null;
 
@@ -106,8 +165,10 @@ const ModalBarangKeluar = ({ isOpen, onClose, refreshData, editItem }) => {
     <div className="modal-overlay">
       <div className="modal-container">
         <div className="modal-header">
-          <h2>{editItem ? 'Edit Barang Keluar' : 'Tambah Barang Keluar'}</h2>
-          <button className="modal-close" onClick={onClose}>✕</button>
+          <h2>{editItem ? "Edit Barang Keluar" : "Tambah Barang Keluar"}</h2>
+          <button className="modal-close" onClick={onClose}>
+            ✕
+          </button>
         </div>
 
         {error && <div className="error-message">{error}</div>}
@@ -115,84 +176,115 @@ const ModalBarangKeluar = ({ isOpen, onClose, refreshData, editItem }) => {
         <form onSubmit={handleSubmit} className="modal-form">
           <div className="form-row">
             <div className="form-group">
-              <label htmlFor="idproduk">Produk *</label>
+              <label>Gudang *</label>
               <select
-                id="idproduk"
-                name="idproduk"
-                value={formData.idproduk}
-                onChange={handleInputChange}
+                name="gudang_id"
+                value={formData.gudang_id}
+                onChange={handleChange}
                 required
-                disabled={loading || !!editItem}
+                disabled={loading}
               >
-                <option value="">Pilih produk</option>
-                {products.map(product => (
-                  <option key={product.id} value={product.id}>
-                    {product.nama}
+                <option value="">Pilih gudang</option>
+                {gudangOptions.map((g) => (
+                  <option key={g.id} value={g.id}>
+                    {g.nama_gudang}
                   </option>
                 ))}
               </select>
             </div>
 
             <div className="form-group">
-              <label htmlFor="stock_keluar">Jumlah Stock Keluar *</label>
-              <input
-                type="number"
-                id="stock_keluar"
-                name="stock_keluar"
-                value={formData.stock_keluar}
-                onChange={handleInputChange}
+              <label>Kategori *</label>
+              <select
+                name="kategori_id"
+                value={formData.kategori_id}
+                onChange={handleChange}
                 required
-                placeholder="0"
-                min="1"
-                disabled={loading}
-              />
+                disabled={!formData.gudang_id || loading}
+              >
+                <option value="">Pilih kategori</option>
+                {filteredKategori.map((k) => (
+                  <option key={k.idkategori} value={k.idkategori}>
+                    {k.nama_kategori}
+                  </option>
+                ))}
+              </select>
+            </div>
+
+            <div className="form-group">
+              <label>Produk *</label>
+              <select
+                name="idproduk"
+                value={formData.idproduk}
+                onChange={handleChange}
+                required
+                disabled={!formData.kategori_id || loading || !!editItem}
+              >
+                <option value="">Pilih produk</option>
+                {filteredProduk.map((p) => (
+                  <option key={p.id} value={p.id}>
+                    {p.nama}
+                  </option>
+                ))}
+              </select>
             </div>
           </div>
 
           <div className="form-row">
             <div className="form-group">
-              <label htmlFor="tanggal_keluar">Tanggal Keluar *</label>
+              <label>Jumlah Stock Keluar *</label>
+              <input
+                type="number"
+                name="stock_keluar"
+                value={formData.stock_keluar}
+                onChange={handleChange}
+                required
+                min="1"
+                placeholder="0"
+                disabled={loading}
+              />
+            </div>
+
+            <div className="form-group">
+              <label>Tanggal Keluar *</label>
               <input
                 type="date"
-                id="tanggal_keluar"
                 name="tanggal_keluar"
                 value={formData.tanggal_keluar}
-                onChange={handleInputChange}
+                onChange={handleChange}
                 required
                 disabled={loading}
               />
             </div>
             <div className="form-group">
-              <label htmlFor="alasan_keluar">Alasan Keluar *</label>
+              <label>Alasan Keluar *</label>
               <input
                 type="text"
-                id="alasan_keluar"
                 name="alasan_keluar"
                 value={formData.alasan_keluar}
-                onChange={handleInputChange}
+                onChange={handleChange}
                 required
-                maxLength={255}
-                placeholder="Alasan barang keluar"
+                placeholder="Masukkan alasan barang keluar"
                 disabled={loading}
               />
             </div>
           </div>
 
           <div className="modal-actions">
-            <button 
-              type="button" 
+            <button
+              type="button"
               className="btn-cancel"
               onClick={handleCancel}
               disabled={loading}
             >
               Cancel
             </button>
-            <button 
-              type="submit" 
-              className="btn-submit"
-              disabled={loading}
-            >
-              {loading ? 'Processing...' : (editItem ? 'Update Barang Keluar' : 'Tambah Barang Keluar')}
+            <button type="submit" className="btn-submit" disabled={loading}>
+              {loading
+                ? "Processing..."
+                : editItem
+                ? "Update Barang Keluar"
+                : "Tambah Barang Keluar"}
             </button>
           </div>
         </form>

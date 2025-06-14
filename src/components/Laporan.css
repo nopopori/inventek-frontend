@@ -10,7 +10,8 @@
 .main-content {
   flex: 1;
   padding: 30px;
-  margin-left: 250px; /* Sesuaikan dengan lebar sidebar existing */
+  margin-left: 250px;
+  /* Sesuaikan dengan lebar sidebar existing */
 }
 
 .content-header {
@@ -95,6 +96,14 @@
   overflow: hidden;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
   margin-bottom: 20px;
+  max-height: 700px;
+  /* Atur tinggi maksimum sesuai kebutuhan */
+  overflow-y: auto;
+  /* Aktifkan scroll vertikal */
+  overflow-x: auto;
+  /* Jika kolom terlalu banyak */
+  border: 1px solid #ddd;
+  border-radius: 8px;
 }
 
 .data-table {
@@ -126,6 +135,7 @@
 .data-table tr:hover {
   background-color: #f8f9fa;
 }
+
 /* Laporan Container */
 .laporan-container {
   display: flex;
@@ -174,7 +184,8 @@
   gap: 10px;
 }
 
-.add-product-btn, .filters-btn {
+.add-product-btn,
+.filters-btn {
   display: flex;
   align-items: center;
   gap: 5px;
@@ -202,6 +213,15 @@
   box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
   overflow: hidden;
   margin-bottom: 20px;
+  max-height: 700px;
+  /* Atur tinggi maksimum sesuai kebutuhan */
+  overflow-y: auto;
+  /* Aktifkan scroll vertikal */
+  overflow-x: auto;
+  /* Jika kolom terlalu banyak */
+  border: 1px solid #ddd;
+  border-radius: 8px;
+
 }
 
 .data-table {
@@ -209,7 +229,8 @@
   border-collapse: collapse;
 }
 
-.data-table th, .data-table td {
+.data-table th,
+.data-table td {
   padding: 12px 15px;
   text-align: left;
   border-bottom: 1px solid #eaeaea;
@@ -354,14 +375,18 @@
   color: #4b5563;
 }
 
-.form-group input, .form-group select, .form-group textarea {
+.form-group input,
+.form-group select,
+.form-group textarea {
   padding: 10px;
   border: 1px solid #d1d5db;
   border-radius: 5px;
   font-size: 14px;
 }
 
-.form-group input:focus, .form-group select:focus, .form-group textarea:focus {
+.form-group input:focus,
+.form-group select:focus,
+.form-group textarea:focus {
   border-color: #4f46e5;
   outline: none;
 }
@@ -382,7 +407,8 @@
   margin-top: 20px;
 }
 
-.btn-cancel, .btn-submit {
+.btn-cancel,
+.btn-submit {
   padding: 10px 15px;
   border-radius: 5px;
   cursor: pointer;
@@ -400,7 +426,8 @@
   color: white;
 }
 
-.btn-submit:disabled, .btn-cancel:disabled {
+.btn-submit:disabled,
+.btn-cancel:disabled {
   opacity: 0.5;
   cursor: not-allowed;
 }
@@ -426,6 +453,7 @@
   color: #6b7280;
   font-style: italic;
 }
+
 /* Action Buttons */
 .action-buttons {
   display: flex;
@@ -513,8 +541,13 @@
 }
 
 @keyframes fadeIn {
-  from { opacity: 0; }
-  to { opacity: 1; }
+  from {
+    opacity: 0;
+  }
+
+  to {
+    opacity: 1;
+  }
 }
 
 .modal-container {
@@ -533,6 +566,7 @@
     opacity: 0;
     transform: translateY(-20px);
   }
+
   to {
     opacity: 1;
     transform: translateY(0);
@@ -691,57 +725,59 @@
     grid-template-columns: 1fr;
     gap: 12px;
   }
+
   .modal-overlay {
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  background: rgba(0,0,0,0.6);
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  z-index: 9999;
-}
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.6);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 9999;
+  }
 
-.modal-content {
-  background: white;
-  padding: 20px;
-  width: 90%;
-  max-width: 1000px;
-  border-radius: 10px;
-  max-height: 90vh;
-  overflow-y: auto;
-}
+  .modal-content {
+    background: white;
+    padding: 20px;
+    width: 90%;
+    max-width: 1000px;
+    border-radius: 10px;
+    max-height: 90vh;
+    overflow-y: auto;
+  }
 
-.modal-title {
-  font-size: 20px;
-  font-weight: bold;
-  text-align: center;
-}
+  .modal-title {
+    font-size: 20px;
+    font-weight: bold;
+    text-align: center;
+  }
 
-.modal-actions {
-  display: flex;
-  justify-content: flex-end;
-  gap: 10px;
-  margin-top: 20px;
-}
+  .modal-actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 10px;
+    margin-top: 20px;
+  }
 
-.btn-print, .btn-close {
-  padding: 8px 16px;
-  border: none;
-  border-radius: 5px;
-  cursor: pointer;
-}
+  .btn-print,
+  .btn-close {
+    padding: 8px 16px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+  }
 
-.btn-print {
-  background-color: #4caf50;
-  color: white;
-}
+  .btn-print {
+    background-color: #4caf50;
+    color: white;
+  }
 
-.btn-close {
-  background-color: #f44336;
-  color: white;
-}
+  .btn-close {
+    background-color: #f44336;
+    color: white;
+  }
 
 }
