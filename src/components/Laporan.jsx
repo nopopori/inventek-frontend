@@ -151,7 +151,7 @@ const Laporan = () => {
           {loading ? (
             <div className="loading-indicator">Loading...</div>
           ) : currentData.length === 0 ? (
-            <div className="no-data-message">Tidak ada data tersedia</div>
+            <div className="no-data-message">No data available</div>
           ) : (
             <table className="data-table">
               <thead>

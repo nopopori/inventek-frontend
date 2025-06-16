@@ -1,0 +1,100 @@
+/* ModalDownload.css */
+
+/* Overlay latar belakang */
+.modal-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.6);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 1000;
+}
+
+/* Konten modal */
+.modal-content {
+    background-color: #fff;
+    padding: 30px;
+    border-radius: 12px;
+    width: 90%;
+    max-width: 900px;
+    max-height: 90vh;
+    overflow-y: auto;
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
+}
+
+/* Judul modal */
+.modal-title {
+    font-size: 1.5rem;
+    font-weight: bold;
+    margin-bottom: 20px;
+    color: #1f2937;
+    /* Gray-800 */
+}
+
+/* Tabel konten cetak */
+.print-content table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 10px;
+}
+
+.print-content th,
+.print-content td {
+    border: 1px solid #e5e7eb;
+    /* Gray-200 */
+    padding: 10px;
+    text-align: left;
+}
+
+.print-content th {
+    background-color: #f3f4f6;
+    /* Gray-100 */
+    color: #111827;
+    /* Gray-900 */
+}
+
+/* Tombol aksi */
+.modal-actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 10px;
+    margin-top: 20px;
+}
+
+.btn-print {
+    background-color: #2563eb;
+    /* Blue-600 */
+    color: white;
+    padding: 10px 20px;
+    border: none;
+    border-radius: 8px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background-color 0.2s ease-in-out;
+}
+
+.btn-print:hover {
+    background-color: #1d4ed8;
+    /* Blue-700 */
+}
+
+.btn-close {
+    background-color: #9ca3af;
+    /* Gray-400 */
+    color: white;
+    padding: 10px 20px;
+    border: none;
+    border-radius: 8px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background-color 0.2s ease-in-out;
+}
+
+.btn-close:hover {
+    background-color: #6b7280;
+    /* Gray-500 */
+}

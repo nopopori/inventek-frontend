@@ -1,4 +1,5 @@
 import React, { useRef } from "react";
+import "./ModalDownload.css";
 
 const ModalDownload = ({ isOpen, onClose, data, activeTab }) => {
   const printRef = useRef();

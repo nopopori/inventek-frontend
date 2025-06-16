@@ -174,7 +174,8 @@ const Product = () => {
   };
 
   const overviewStats = {
-    categories: [...new Set(productData.map((p) => p.kategori?.nama_kategori))].length,
+    categories: [...new Set(productData.map((p) => p.kategori?.nama_kategori))]
+      .length,
     totalProducts: productData.length,
     totalStock: productData.reduce((sum, p) => sum + (p.stock || 0), 0),
     lowStocks: productData.filter((p) => (p.stock || 0) < 10).length,
@@ -211,7 +212,12 @@ const Product = () => {
             ["Total Stock", overviewStats.totalStock],
             ["Low Stocks", overviewStats.lowStocks],
           ].map(([label, value], i) => (
-            <div className={`overview-card ${label.toLowerCase().replace(/ /g, "-")}`} key={i}>
+            <div
+              className={`overview-card ${label
+                .toLowerCase()
+                .replace(/ /g, "-")}`}
+              key={i}
+            >
               <h3>{label}</h3>
               <div className="overview-number">{value}</div>
               <div className="overview-subtitle">Last 7 days</div>
@@ -257,16 +263,36 @@ const Product = () => {
                       <img
                         src={`http://localhost:8000/storage/${product.foto_produk}`}
                         alt={product.nama}
-                        style={{ width: 80, height: 80, objectFit: "cover", borderRadius: 6 }}
+                        style={{
+                          width: 80,
+                          height: 80,
+                          objectFit: "cover",
+                          borderRadius: 6,
+                        }}
                       />
                     ) : (
                       "No Image"
                     )}
                   </td>
                   <td className="action-buttons">
-                    <button title="View" onClick={() => handleViewProduct(product)}>👁️</button>
-                    <button title="Edit" onClick={() => handleEditProduct(product)}>✏️</button>
-                    <button title="Delete" onClick={() => handleDeleteProduct(product.id)}>🗑️</button>
+                    <button
+                      title="View"
+                      onClick={() => handleViewProduct(product)}
+                    >
+                      👁️
+                    </button>
+                    <button
+                      title="Edit"
+                      onClick={() => handleEditProduct(product)}
+                    >
+                      ✏️
+                    </button>
+                    <button
+                      title="Delete"
+                      onClick={() => handleDeleteProduct(product.id)}
+                    >
+                      🗑️
+                    </button>
                   </td>
                 </tr>
               ))}
@@ -283,7 +309,10 @@ const Product = () => {
 
         {/* Pagination */}
         <div className="pagination">
-          <button onClick={() => setCurrentPage((p) => Math.max(p - 1, 1))} disabled={currentPage === 1}>
+          <button
+            onClick={() => setCurrentPage((p) => Math.max(p - 1, 1))}
+            disabled={currentPage === 1}
+          >
             &lt; Prev
           </button>
           <span>
@@ -305,9 +334,15 @@ const Product = () => {
               <form onSubmit={handleSubmit} encType="multipart/form-data">
                 {["nama", "stock", "keterangan"].map((field, idx) => (
                   <div className="form-group" key={idx}>
-                    <label>{field.charAt(0).toUpperCase() + field.slice(1)}</label>
+                    <label>
+                      {field.charAt(0).toUpperCase() + field.slice(1)}
+                    </label>
                     {field === "keterangan" ? (
-                      <textarea name={field} value={formData[field]} onChange={handleInputChange} />
+                      <textarea
+                        name={field}
+                        value={formData[field]}
+                        onChange={handleInputChange}
+                      />
                     ) : (
                       <input
                         type={field === "stock" ? "number" : "text"}
@@ -320,8 +355,22 @@ const Product = () => {
                   </div>
                 ))}
 
-                {[{ name: "idkategori", label: "Kategori", data: kategoriList, valueKey: "idkategori", labelKey: "nama_kategori" },
-                  { name: "idgudang", label: "Gudang", data: gudangList, valueKey: "id", labelKey: "nama_gudang" }].map((select, idx) => (
+                {[
+                  {
+                    name: "idkategori",
+                    label: "Kategori",
+                    data: kategoriList,
+                    valueKey: "idkategori",
+                    labelKey: "nama_kategori",
+                  },
+                  {
+                    name: "idgudang",
+                    label: "Gudang",
+                    data: gudangList,
+                    valueKey: "id",
+                    labelKey: "nama_gudang",
+                  },
+                ].map((select, idx) => (
                   <div className="form-group" key={idx}>
                     <label>{select.label}</label>
                     <select
@@ -332,7 +381,10 @@ const Product = () => {
                     >
                       <option value="">-- Pilih {select.label} --</option>
                       {select.data.map((item) => (
-                        <option key={item[select.valueKey]} value={item[select.valueKey]}>
+                        <option
+                          key={item[select.valueKey]}
+                          value={item[select.valueKey]}
+                        >
                           {item[select.labelKey]}
                         </option>
                       ))}
@@ -342,7 +394,11 @@ const Product = () => {
 
                 <div className="form-group">
                   <label>Foto Produk</label>
-                  <input type="file" name="foto_produk" onChange={handleFileChange} />
+                  <input
+                    type="file"
+                    name="foto_produk"
+                    onChange={handleFileChange}
+                  />
                 </div>
 
                 <div className="form-group checkbox-group">
@@ -361,7 +417,11 @@ const Product = () => {
                   <button type="submit" className="btn-submit">
                     {isEditMode ? "Update" : "Simpan"}
                   </button>
-                  <button type="button" className="btn-cancel" onClick={handleCloseModal}>
+                  <button
+                    type="button"
+                    className="btn-cancel"
+                    onClick={handleCloseModal}
+                  >
                     Batal
                   </button>
                 </div>
