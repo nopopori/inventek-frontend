@@ -85,16 +85,9 @@ const Sidebar = () => {
     <div className={`sidebar ${sidebarOpen ? "open" : ""}`}>
       <div className="sidebar-header">
         <div className="logo">
-          <div className="logo-icon">D</div>
-          <span className="logo-text">Dashboard</span>
+          <div className="logo-icon">I</div>
+          <span className="logo-text">Inventek</span>
         </div>
-        <button
-          className="close-btn mobile-only"
-          onClick={() => setSidebarOpen(false)}
-          aria-label="Close sidebar"
-        >
-          <X size={20} />
-        </button>
       </div>
 
       <nav className="sidebar-nav">
