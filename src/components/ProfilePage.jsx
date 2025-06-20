@@ -106,13 +106,6 @@ const ProfilePage = () => {
             <p className="date">{formattedDate}</p>
           </div>
           <div className="header-actions">
-            <div className="search-container">
-              <Search size={20} className="search-icon" />
-              <input type="text" placeholder="Search" className="search-input" />
-            </div>
-            <div className="notification-icon">
-              <Bell size={20} />
-            </div>
             <div className="profile-avatar">
               <img
                 src={profile.profile_photo_url || defaultProfileImage}
