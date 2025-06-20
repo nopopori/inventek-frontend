@@ -229,7 +229,7 @@ const Product = () => {
         <div className="content-header">
           <h1>Products</h1>
           <div className="header-actions">
-            <button className="filter-btn">⚙️ Filters</button>
+           
             <button className="add-btn" onClick={handleAddProduct}>
               + Add New Product
             </button>
