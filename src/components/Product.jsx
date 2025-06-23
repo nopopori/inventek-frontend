@@ -4,6 +4,7 @@ import axios from "../api/axios";
 import Sidebar from "./sidebar";
 import ProductDetail from "./ProductDetail";
 import "./Product.css";
+import ModalProduct from './modal/ModalProduct';
 
 const Product = () => {
   const [productData, setProductData] = useState([]);
@@ -188,7 +189,8 @@ const Product = () => {
   };
 
   if (showDetail && selectedProduct) {
-    return (
+  return (
+    <>
       <ProductDetail
         product={selectedProduct}
         onBack={() => {
@@ -197,8 +199,26 @@ const Product = () => {
         }}
         onEdit={handleEditProduct}
       />
-    );
-  }
+
+      {/* Pastikan modal tetap dirender walau sedang dalam tampilan detail */}
+      <ModalProduct
+        show={showAddModal}
+        onClose={() => {
+          setShowAddModal(false);
+          setIsEditMode(false);
+          setFormData({});
+        }}
+        formData={formData}
+        onChange={handleInputChange}
+        onFileChange={handleFileChange}
+        onSubmit={handleSubmit}
+        isEditMode={isEditMode}
+        kategoriList={kategoriList}
+        gudangList={gudangList}
+      />
+    </>
+  );
+}
 
   return (
     <div className="dashboard-container">
@@ -327,108 +347,17 @@ const Product = () => {
         </div>
 
         {/* Modal Form */}
-        {showAddModal && (
-          <div className="modal-overlay">
-            <div className="modal">
-              <h2>{isEditMode ? "Edit Produk" : "Tambah Produk"}</h2>
-              <form onSubmit={handleSubmit} encType="multipart/form-data">
-                {["nama", "stock", "keterangan"].map((field, idx) => (
-                  <div className="form-group" key={idx}>
-                    <label>
-                      {field.charAt(0).toUpperCase() + field.slice(1)}
-                    </label>
-                    {field === "keterangan" ? (
-                      <textarea
-                        name={field}
-                        value={formData[field]}
-                        onChange={handleInputChange}
-                      />
-                    ) : (
-                      <input
-                        type={field === "stock" ? "number" : "text"}
-                        name={field}
-                        value={formData[field]}
-                        onChange={handleInputChange}
-                        required
-                      />
-                    )}
-                  </div>
-                ))}
-
-                {[
-                  {
-                    name: "idkategori",
-                    label: "Kategori",
-                    data: kategoriList,
-                    valueKey: "idkategori",
-                    labelKey: "nama_kategori",
-                  },
-                  {
-                    name: "idgudang",
-                    label: "Gudang",
-                    data: gudangList,
-                    valueKey: "id",
-                    labelKey: "nama_gudang",
-                  },
-                ].map((select, idx) => (
-                  <div className="form-group" key={idx}>
-                    <label>{select.label}</label>
-                    <select
-                      name={select.name}
-                      value={formData[select.name]}
-                      onChange={handleInputChange}
-                      required
-                    >
-                      <option value="">-- Pilih {select.label} --</option>
-                      {select.data.map((item) => (
-                        <option
-                          key={item[select.valueKey]}
-                          value={item[select.valueKey]}
-                        >
-                          {item[select.labelKey]}
-                        </option>
-                      ))}
-                    </select>
-                  </div>
-                ))}
-
-                <div className="form-group">
-                  <label>Foto Produk</label>
-                  <input
-                    type="file"
-                    name="foto_produk"
-                    onChange={handleFileChange}
-                  />
-                </div>
-
-                <div className="form-group checkbox-group">
-                  <label>
-                    <input
-                      type="checkbox"
-                      name="masukkan_ke_barang_masuk"
-                      checked={formData.masukkan_ke_barang_masuk}
-                      onChange={handleInputChange}
-                    />
-                    Masukkan ke barang masuk
-                  </label>
-                </div>
-
-                <div className="modal-actions">
-                  <button type="submit" className="btn-submit">
-                    {isEditMode ? "Update" : "Simpan"}
-                  </button>
-                  <button
-                    type="button"
-                    className="btn-cancel"
-                    onClick={handleCloseModal}
-                  >
-                    Batal
-                  </button>
-                </div>
-              </form>
-            </div>
-          </div>
-        )}
+        <ModalProduct
+  show={showAddModal}
+  onClose={handleCloseModal}
+  formData={formData}
+  onChange={handleInputChange}
+  onFileChange={handleFileChange}
+  onSubmit={handleSubmit}
+  isEditMode={isEditMode}
+  kategoriList={kategoriList}
+  gudangList={gudangList}
+/>
       </div>
     </div>
   );

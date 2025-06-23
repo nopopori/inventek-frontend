@@ -978,4 +978,14 @@ body {
   cursor: pointer;
   border-radius: 6px;
 }
+.checkbox-group {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-top: 10px;
+}
+
+.checkbox-group input[type="checkbox"] {
+  margin: 0;
+}
 
