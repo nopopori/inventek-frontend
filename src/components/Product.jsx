@@ -240,7 +240,7 @@ const Product = () => {
             >
               <h3>{label}</h3>
               <div className="overview-number">{value}</div>
-              <div className="overview-subtitle">Last 7 days</div>
+              
             </div>
           ))}
         </div>

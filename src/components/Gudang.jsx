@@ -13,9 +13,12 @@ const Gudang = () => {
     fotoGudang: null,
   });
 
-  // State untuk edit
   const [isEditMode, setIsEditMode] = useState(false);
   const [editId, setEditId] = useState(null);
+
+  // Pagination
+  const [currentPage, setCurrentPage] = useState(1);
+  const itemsPerPage = 5;
 
   useEffect(() => {
     fetchGudang();
@@ -23,7 +26,6 @@ const Gudang = () => {
 
   const fetchGudang = async () => {
     const response = await axios.get('/gudang');
-
     if (Array.isArray(response.data)) {
       setGudangData(response.data);
     } else if (response.data && Array.isArray(response.data.data)) {
@@ -103,12 +105,18 @@ const Gudang = () => {
     setFormData({
       namaGudang: gudang.nama_gudang,
       lokasiGudang: gudang.lokasi,
-      fotoGudang: null, // Tidak bisa preload file input
+      fotoGudang: null,
     });
     setEditId(gudang.id);
     setIsEditMode(true);
     setShowAddModal(true);
   };
+
+  // Pagination Logic
+  const indexOfLastItem = currentPage * itemsPerPage;
+  const indexOfFirstItem = indexOfLastItem - itemsPerPage;
+  const currentItems = gudangData.slice(indexOfFirstItem, indexOfLastItem);
+  const totalPages = Math.ceil(gudangData.length / itemsPerPage);
 
   return (
     <div className="dashboard-container">
@@ -132,8 +140,8 @@ const Gudang = () => {
               </tr>
             </thead>
             <tbody>
-              {Array.isArray(gudangData) && gudangData.length > 0 ? (
-                gudangData.map((item) => (
+              {currentItems.length > 0 ? (
+                currentItems.map((item) => (
                   <tr key={item.id}>
                     <td>{item.nama_gudang}</td>
                     <td>{item.lokasi}</td>
@@ -163,8 +171,28 @@ const Gudang = () => {
               )}
             </tbody>
           </table>
+
+        </div>
+          {/* Pagination Controls */}
+         <div className="pagination">
+          <button
+            onClick={() => setCurrentPage((p) => Math.max(p - 1, 1))}
+            disabled={currentPage === 1}
+          >
+            &lt; Prev
+          </button>
+          <span>
+            Page {currentPage} of {totalPages}
+          </span>
+          <button
+            onClick={() => setCurrentPage((p) => Math.min(p + 1, totalPages))}
+            disabled={currentPage === totalPages}
+          >
+            Next &gt;
+          </button>
         </div>
 
+        {/* Modal */}
         <ModalGudang
           show={showAddModal}
           onClose={handleCloseModal}
